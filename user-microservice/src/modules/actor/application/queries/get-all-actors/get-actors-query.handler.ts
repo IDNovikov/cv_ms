@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { GetActorsQuery } from './get-actors-query.command';
 import { ActorAggregate } from 'src/modules/actor/domain';
-import { ActorDBPort } from 'src/modules/actor/providers';
+import { ActorDBPort, RedisServicePort } from 'src/modules/actor/providers';
 
 @QueryHandler(GetActorsQuery)
 export class GetActorsQueryHandler implements IQueryHandler<
@@ -18,7 +18,10 @@ export class GetActorsQueryHandler implements IQueryHandler<
   }
 > {
   private readonly logger = new Logger(GetActorsQueryHandler.name);
-  constructor(private readonly actorRepository: ActorDBPort) {}
+  constructor(
+    private readonly actorRepository: ActorDBPort,
+    private readonly redis: RedisServicePort,
+  ) {}
 
   async execute({ dto }: GetActorsQuery): Promise<{
     data: ActorAggregate[];

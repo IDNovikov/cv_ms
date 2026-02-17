@@ -14,12 +14,13 @@ import { AmqpModule } from '../core/amqp/amqp.module';
 import { ActorDBPort, RabbitServicePort } from './providers';
 import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
 import { RabbitService } from '../core/amqp/amqp.service';
+import { ActorGrpcController } from './api/gRPC/actor.grpc.controller';
 
 const EventHandlers = [ActorCreatedSendMailHandler];
 
 @Module({
   imports: [CqrsModule, PrismaModule, RedisModule, AmqpModule],
-  controllers: [MSController],
+  controllers: [MSController, ActorGrpcController],
   providers: [
     RabbitService,
     PrismaService,

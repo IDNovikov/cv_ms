@@ -1,3 +1,4 @@
 export * from './cors.config';
 export * from './swager.config';
 export * from './validation-pipe.config';
+export * from './grpc.config';

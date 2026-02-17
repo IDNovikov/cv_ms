@@ -5,10 +5,12 @@ import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
 import {
   getCorsConfig,
+  getGrpcConfig,
   getSwaggerConfig,
   getValidationPipeConfig,
 } from './common/config';
 import { LoggingInterceptors } from './common/interceptors/loggining.intrceptor';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -32,9 +34,11 @@ async function bootstrap() {
   //APP
   const port = config.getOrThrow<number>('PORT');
   const host = config.getOrThrow<string>('HOST');
-
+  //MS
+  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig());
+  await app.startAllMicroservices();
+  //HTTP
   await app.listen(port);
-
   logger.log(`🚀 Service started: ${host}:${port}`);
   logger.log(`📜 Swagger: ${host}:${port}/docs`);
 }

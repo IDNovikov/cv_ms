@@ -5,7 +5,7 @@ services:
     image: postgres:15-alpine
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
-      POSRGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - data_postgres:/var/lib/postgresql/data
     ports:
@@ -24,17 +24,17 @@ services:
       - app_network
     restart: on-failure
 
-  rabbit:
-    env_file: .env
-    container_name: ${APP_NAME}_amqp
-    image: rabbitmq:4-management
-    ports:
-      - "5672:5672"
-      - "15672:15672"
+  # rabbit:
+  #   env_file: .env
+  #   container_name: ${APP_NAME}_amqp
+  #   image: rabbitmq:4-management
+  #   ports:
+  #     - "5672:5672"
+  #     - "15672:15672"
 
-    networks:
-      - app_network
-    restart: on-failure
+  #   networks:
+  #     - app_network
+  #   restart: on-failure
 
   # mail-microservice:
   #   build:

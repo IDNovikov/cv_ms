@@ -6,20 +6,19 @@ import { RabbitServicePort } from '../../providers';
 export class ActorCreatedSendMailHandler implements IEventHandler<ActorCreatedEvent> {
   constructor(private readonly amqp: RabbitServicePort) {}
 
-  request = `{
+  async handle(event: ActorCreatedEvent) {
+    const request = `{
 "type": "SEND_MAIL",
 "requestId": "debug-1",
 "timeStamp": "2026-01-29T10:00:00.000Z",
 "payload": {
 "from":"gay",
-"toEmail": "billcozy@yandex.ru",
+"toEmail": "lmasha99@mail.ru",
 "subject": "Test",
-"text": "Hello"
+"text": "${event.actor}"
 }
 }`;
-  async handle(event: ActorCreatedEvent) {
-    const text = `This is text message to ${event.actorId}`;
-    console.log(text);
-    const isSended = await this.amqp.AmqpSendMail(this.request);
+    console.log(`TO-RMQ ${request}`);
+    await this.amqp.AmqpSendMail(request);
   }
 }

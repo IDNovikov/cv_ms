@@ -17,7 +17,7 @@ export class RabbitService implements OnModuleInit, OnModuleDestroy {
   }
   async onModuleInit() {
     try {
-      await this.amqp.init();
+      //await this.amqp.init();
     } catch (err) {
       this.logger.error(err);
       throw err;

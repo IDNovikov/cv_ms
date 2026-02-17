@@ -1,6 +1,6 @@
 export class ActorCreatedEvent {
   constructor(
-    public readonly actorId: string,
+    public readonly actor: string | null,
     public readonly at: string,
   ) {}
 }

@@ -28,7 +28,7 @@ export class ActorAggregate extends AggregateRoot implements IActor {
       createdAt: now,
       author: input.author,
     });
-    actor.apply(new ActorCreatedEvent(actor.id, now));
+    actor.apply(new ActorCreatedEvent(actor.author, now));
     return actor;
   }
 

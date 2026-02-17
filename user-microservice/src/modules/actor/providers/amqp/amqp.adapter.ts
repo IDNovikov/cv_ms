@@ -1,19 +1,16 @@
 import { Injectable } from '@nestjs/common';
-import { RabbitConsumer } from './amqp.port';
-import {
-  AmqpConnection,
-  AmqpConnectionManager,
-  RabbitMQModule,
-} from '@golevelup/nestjs-rabbitmq';
+import { RabbitServicePort } from './amqp.port';
+import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
+import { RabbitService } from 'src/modules/core/amqp/amqp.service';
 
 @Injectable()
-export class RabbitPublisher extends RabbitConsumer {
-  constructor(private readonly amqp: AmqpConnection) {
+export class RabbitServiceAdapter extends RabbitServicePort {
+  constructor(private readonly amqp: RabbitService) {
     super();
   }
 
   async AmqpSendMail(payload: any): Promise<void> {
     console.log(payload);
-    await this.amqp.publish('mail', 'mail.send', payload);
+    await this.amqp.amqp.publish('mail', 'mail.send', payload);
   }
 }

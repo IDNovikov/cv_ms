@@ -1,3 +1,3 @@
-export abstract class RabbitConsumer {
+export abstract class RabbitServicePort {
   abstract AmqpSendMail(payload): Promise<void>;
 }

@@ -6,6 +6,7 @@ import {
   RabbitRpcParamsFactory,
 } from '@golevelup/nestjs-rabbitmq';
 import { amqpConfig } from './amqp.config';
+import { RabbitService } from './amqp.service';
 
 @Global()
 @Module({
@@ -17,7 +18,7 @@ import { amqpConfig } from './amqp.config';
       useFactory: (configService: ConfigService) => amqpConfig(configService),
     }),
   ],
-  providers: [RabbitRpcParamsFactory],
-  exports: [RabbitMQModule, RabbitRpcParamsFactory],
+  providers: [RabbitRpcParamsFactory, RabbitService],
+  exports: [RabbitMQModule, RabbitRpcParamsFactory, RabbitService],
 })
 export class AmqpModule {}

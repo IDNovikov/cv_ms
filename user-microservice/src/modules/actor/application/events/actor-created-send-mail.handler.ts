@@ -1,10 +1,10 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
 import { ActorCreatedEvent } from '../../domain/events/actor-created.event';
-import { RabbitConsumer } from '../../providers';
+import { RabbitServicePort } from '../../providers';
 
 @EventsHandler(ActorCreatedEvent)
 export class ActorCreatedSendMailHandler implements IEventHandler<ActorCreatedEvent> {
-  constructor(private readonly amqp: RabbitConsumer) {}
+  constructor(private readonly amqp: RabbitServicePort) {}
 
   request = `{
 "type": "SEND_MAIL",

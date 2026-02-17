@@ -25,8 +25,14 @@ export class ConsumerService {
   private async sendVerifyMail(
     request: SendMailContract.request,
   ): Promise<void> {
-    this.logger.log(request);
-    const { payload } = request;
+    const trueRequest =
+      typeof request === 'string'
+        ? JSON.parse(request)
+        : Buffer.isBuffer(request)
+          ? JSON.parse(request.toString('utf8'))
+          : request;
+
+    const payload = trueRequest.payload ?? trueRequest;
     try {
       const sendedMail = await this.mailService.sendMail(payload);
       this.logger.log(sendedMail);

@@ -1,26 +1,45 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { Logger, ValidationPipe } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { SwaggerModule } from '@nestjs/swagger';
+import {
+  getCorsConfig,
+  getGrpcConfig,
+  getSwaggerConfig,
+  getValidationPipeConfig,
+} from './common/config';
+import { LoggingInterceptors } from './common/interceptors/loggining.intrceptor';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.GRPC,
-    options: {
-      package: 'auth.v1',
-      protoPath: 'node_modules/@noildm/contracts/proto/auth.proto',
-      url: 'localhost:50051',
-      loader: {
-        keepCase: false,
-        longs: String,
-        enums: String,
-        defaults: true,
-        oneofs: true,
-      },
-    },
+  const config = app.get(ConfigService);
+  const logger = new Logger();
+
+  //PIPES
+  app.useGlobalPipes(new ValidationPipe(getValidationPipeConfig()));
+  //Interceptors
+  app.useGlobalInterceptors(new LoggingInterceptors());
+
+  //CORS
+  app.enableCors(getCorsConfig(config));
+
+  //SWAGGER
+  SwaggerModule.setup('/docs', app, getSwaggerConfig(app, config), {
+    yamlDocumentUrl: '/openapi.yaml',
+    jsonDocumentUrl: 'jsonapi.json',
   });
 
+  //APP
+  const port = config.getOrThrow<number>('PORT');
+  const host = config.getOrThrow<string>('HOST');
+  //MS
+  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig());
   await app.startAllMicroservices();
-  await app.init();
+  //HTTP
+  await app.listen(port);
+  logger.log(`🚀 Service started: ${host}:${port}`);
+  logger.log(`📜 Swagger: ${host}:${port}/docs`);
 }
 bootstrap();

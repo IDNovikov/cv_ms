@@ -1,8 +1,10 @@
 import { RedisService } from 'src/modules/core/redis/redis.service';
 import { RedisServicePort } from './redis.port';
 
-export class RedisServiceAdapter {
-  private constructor(private readonly client: RedisService) {}
+export class RedisServiceAdapter extends RedisServicePort {
+  private constructor(private readonly client: RedisService) {
+    super();
+  }
 
   async get<T = unknown>(key: string): Promise<T | null> {
     const v = await this.client.raw.get(key);

@@ -1,5 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { ActorCreatedEvent } from '../../domain/events/actor-created.event';
+import { ActorCreatedEvent } from '../../domain/auth/events/actor-created.event';
 import { RabbitServicePort } from '../../providers';
 
 @EventsHandler(ActorCreatedEvent)

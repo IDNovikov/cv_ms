@@ -15,6 +15,10 @@ import { ActorDBPort, RabbitServicePort } from './providers';
 import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
 import { RabbitService } from '../core/amqp/amqp.service';
 import { ActorGrpcController } from './api/gRPC/actor.grpc.controller';
+import { HashPort } from './providers/bcrypt/bcrypt.port';
+import { HashAdapter } from './providers/bcrypt/bcrypt.adapter';
+import { config } from 'process';
+import { ConfigService } from '@nestjs/config';
 
 const EventHandlers = [ActorCreatedSendMailHandler];
 
@@ -25,15 +29,27 @@ const EventHandlers = [ActorCreatedSendMailHandler];
     RabbitService,
     PrismaService,
     RedisService,
+
     {
-      provide: ActorFacade,
+      provide: HashPort,
+      useFactory: (config: ConfigService) =>
+        new HashAdapter({
+          rounds: Number(config.getOrThrow('SALT_ROUNDS', 10)),
+          pepper: config.getOrThrow<string>('PASSWORD_PEPPER', ''),
+        }),
+
+      inject: [ConfigService],
+    },
+
+    {
+      provide: AuthFacade,
       inject: [CommandBus, QueryBus, EventBus],
       useFactory: authFacadeFactory,
     },
     CreateActorHandler,
     { provide: RabbitServicePort, useClass: RabbitServiceAdapter },
-    { provide: ActorDBPort, useClass: ActorDBAdapter },
+    { provide: AuthDBPort, useClass: AuthDBAdapter },
     ...EventHandlers,
   ],
 })
-export class ActorModule {}
+export class AuthModule {}

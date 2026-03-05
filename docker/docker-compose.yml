@@ -53,24 +53,24 @@ services:
       - app_network
     restart: unless-stopped
 
-  user-microservice:
-    build:
-      context: ../user-microservice
-      dockerfile: ../user-microservice/Dockerfile
-    container_name: user-microservice
-    environment:
-      NODE_ENV: production
-    env_file:
-      - ../user-microservice/.env
-    depends_on:
-      - rabbit
-      - redis
-      - postgres
-    ports:
-      - "5002:5002"
-    networks:
-      - app_network
-    restart: unless-stopped
+  # user-microservice:
+  #   build:
+  #     context: ../user-microservice
+  #     dockerfile: ../user-microservice/Dockerfile
+  #   container_name: user-microservice
+  #   environment:
+  #     NODE_ENV: production
+  #   env_file:
+  #     - ../user-microservice/.env
+  #   depends_on:
+  #     - rabbit
+  #     - redis
+  #     - postgres
+  #   ports:
+  #     - "5002:5002"
+  #   networks:
+  #     - app_network
+  #   restart: unless-stopped
 
 volumes:
   data_postgres:

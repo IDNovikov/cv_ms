@@ -1,5 +1,13 @@
-import { ValidationPipeOptions } from '@nestjs/common';
+import { BadRequestException, ValidationPipeOptions } from '@nestjs/common';
 
 export function getValidationPipeConfig(): ValidationPipeOptions {
-  return { transform: true, whitelist: true };
+  return {
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+    exceptionFactory: (errors) => {
+      console.log(JSON.stringify(errors, null, 2));
+      return new BadRequestException(errors);
+    },
+  };
 }

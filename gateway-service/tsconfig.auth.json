@@ -1,0 +1,20 @@
+{
+  "extends": "./tsconfig.json",
+  "include": [
+    "src/modules/auth/**/*.ts",
+    "src/common/**/*.ts",
+    "src/core/config/**/*.ts",
+    "src/core/redis/**/*.ts",
+    "src/shared/**/*.ts",
+    "src/DTO/**/*.ts"
+  ],
+  "exclude": [
+    "src/app.module.ts",
+    "src/main.ts",
+    "src/app.controller.ts",
+    "src/app.service.ts",
+    "node_modules",
+    "dist",
+    "test"
+  ]
+}

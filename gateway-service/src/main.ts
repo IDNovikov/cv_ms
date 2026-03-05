@@ -1,35 +1,38 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from './core/app.module';
+import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
 import { getCorsConfig, getSwaggerConfig, getValidationPipeConfig } from './core/config';
+import cookieParser from 'cookie-parser';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.setGlobalPrefix('api');
 
   const config = app.get(ConfigService);
-
   const logger = new Logger();
-  //PIPES
+
   app.useGlobalPipes(new ValidationPipe(getValidationPipeConfig()));
-
-  //CORS
   app.enableCors(getCorsConfig(config));
+  app.use(cookieParser());
 
-  //SWAGGER
-  SwaggerModule.setup('/docs', app, getSwaggerConfig(app, config), {
+  SwaggerModule.setup('/api/docs', app, getSwaggerConfig(app, config), {
     yamlDocumentUrl: '/openapi.yaml',
     jsonDocumentUrl: 'jsonapi.json',
   });
 
-  //APP
   const port = config.getOrThrow<number>('PORT');
   const host = config.getOrThrow<string>('HOST');
 
   await app.listen(port);
 
-  logger.log(`🚀 Gateway started: ${host}`);
-  logger.log(`📜 Swagger: ${host}/docs`);
+  logger.log(`Gateway started: ${host}`);
+  logger.log(`Server is running on http://localhost:${port}/`);
+  logger.log(`REST:    http://localhost:${port}/api`);
+  logger.log(`Swagger: http://localhost:${port}/api/docs`);
+  logger.log(`GraphQL: http://localhost:${port}/graphql`);
+  logger.log(`Sandbox: https://studio.apollographql.com/sandbox/explorer`);
 }
+
 bootstrap();

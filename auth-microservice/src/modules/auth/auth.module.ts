@@ -1,55 +1,66 @@
 import { Module } from '@nestjs/common';
-import { ActorCreatedSendMailHandler } from './application/events/actor-created-send-mail.handler';
-import { CommandBus, CqrsModule, EventBus, QueryBus } from '@nestjs/cqrs';
-import { CreateActorHandler } from './application/commands/create-actor/create-actor.handler';
-import { MSController } from './api/http/actor.controller';
-import { PrismaService } from '../core/prisma/prisma.service';
-import { RedisService } from '../core/redis/redis.service';
-import { ActorDBAdapter } from './providers/prisma/prisma.adapter';
-import { ActorFacade } from './application';
-import { authFacadeFactory } from './providers/auth-facade.factory';
-import { PrismaModule } from '../core/prisma/prisma.module';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { RedisModule } from '../core/redis/redis.module';
+import { AuthController } from './auth/auth.controller';
+import { AdminController } from './admin/admin.controller';
+import { PasswordController } from './password/password.controller';
+import { RegistrationController } from './registration/registration.controller';
+import { SessionsController } from './session/session.controller';
+import { AuthService } from './auth/auth.service';
+import { PasswordService } from './password/password.service';
+import { RegistrationService } from './registration/registration.service';
+import { SessionsService } from './session/session.service';
+import { AuthFacade } from './auth/auth.facade';
+import { RegistrationFacade } from './registration/registration.facade';
+import { AdminFacade } from './admin/admin.facade';
+import { PasswordFacade } from './password/password.facade';
+import { SessionFacade } from './session/session.facade';
 import { AmqpModule } from '../core/amqp/amqp.module';
-import { ActorDBPort, RabbitServicePort } from './providers';
-import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
-import { RabbitService } from '../core/amqp/amqp.service';
-import { ActorGrpcController } from './api/gRPC/actor.grpc.controller';
-import { HashPort } from './providers/bcrypt/bcrypt.port';
-import { HashAdapter } from './providers/bcrypt/bcrypt.adapter';
-import { config } from 'process';
-import { ConfigService } from '@nestjs/config';
-
-const EventHandlers = [ActorCreatedSendMailHandler];
+import { AuthGrpcController } from './api/gRPC/auth.grpc.controller';
 
 @Module({
-  imports: [CqrsModule, PrismaModule, RedisModule, AmqpModule],
-  controllers: [MSController, ActorGrpcController],
-  providers: [
-    RabbitService,
-    PrismaService,
-    RedisService,
-
-    {
-      provide: HashPort,
-      useFactory: (config: ConfigService) =>
-        new HashAdapter({
-          rounds: Number(config.getOrThrow('SALT_ROUNDS', 10)),
-          pepper: config.getOrThrow<string>('PASSWORD_PEPPER', ''),
-        }),
-
+  imports: [
+    ConfigModule,
+    RedisModule,
+    AmqpModule,
+    JwtModule.registerAsync({
+      imports: [ConfigModule],
       inject: [ConfigService],
-    },
-
-    {
-      provide: AuthFacade,
-      inject: [CommandBus, QueryBus, EventBus],
-      useFactory: authFacadeFactory,
-    },
-    CreateActorHandler,
-    { provide: RabbitServicePort, useClass: RabbitServiceAdapter },
-    { provide: AuthDBPort, useClass: AuthDBAdapter },
-    ...EventHandlers,
+      useFactory: (cfg: ConfigService) => ({
+        secret: cfg.get('JWT_SECRET'),
+        signOptions: { expiresIn: '15m' },
+      }),
+    }),
+  ],
+  controllers: [
+    AuthController,
+    AdminController,
+    PasswordController,
+    RegistrationController,
+    SessionsController,
+    AuthGrpcController,
+  ],
+  providers: [
+    AuthService,
+    PasswordService,
+    RegistrationService,
+    SessionsService,
+    JwtModule,
+    AuthFacade,
+    AdminFacade,
+    RegistrationFacade,
+    PasswordFacade,
+    SessionFacade,
+    // {
+    //   provide: HashService,
+    //   useFactory: (config: ConfigService) =>
+    //     new HashService({
+    //       rounds: Number(config.get('BCRYPT_SALT_ROUNDS', 10)),
+    //       pepper: config.get<string>('PASSWORD_PEPPER', ''),
+    //     }),
+    //   inject: [ConfigService],
+    // },
   ],
 })
 export class AuthModule {}

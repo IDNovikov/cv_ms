@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
 import { UserCreatedSendMailHandler } from './application/events/actor-created-send-mail.handler';
-import { CommandBus, CqrsModule, EventBus, QueryBus } from '@nestjs/cqrs';
+import { CommandBus, CqrsModule, QueryBus } from '@nestjs/cqrs';
 import { CreateUserHandler } from './application/commands/create-user/create-user.handler';
-import { MSController } from './api/http/actor.controller';
+import { UpdateUserHandler } from './application/commands/update-author-actor/update-author-actor.handler';
+import { DeleteUserHandler } from './application/commands/delete-user/delete-user.handler';
 import { PrismaService } from '../core/prisma/prisma.service';
 import { RedisService } from '../core/redis/redis.service';
 import { UserDBAdapter } from './providers/prisma/prisma.adapter';
@@ -15,22 +16,32 @@ import { UserDBPort, RabbitServicePort } from './providers';
 import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
 import { RabbitService } from '../core/amqp/amqp.service';
 import { UserGrpcController } from './api/gRPC/user.grpc.controller';
+import { GetUserQueryHandler } from './application/queries/get-actor/get-actor-query.handler';
+import { GetUsersQueryHandler } from './application/queries/get-all-actors/get-actors-query.handler';
+import { GetUserByUserNameHandler } from './application/queries/get-user-by-username/get-user-by-username.handler';
 
 const EventHandlers = [UserCreatedSendMailHandler];
+const CommandHandlers = [CreateUserHandler, UpdateUserHandler, DeleteUserHandler];
+const QueryHandlers = [
+  GetUserQueryHandler,
+  GetUsersQueryHandler,
+  GetUserByUserNameHandler,
+];
 
 @Module({
   imports: [CqrsModule, PrismaModule, RedisModule, AmqpModule],
-  controllers: [MSController, UserGrpcController],
+  controllers: [UserGrpcController],
   providers: [
     RabbitService,
     PrismaService,
     RedisService,
     {
       provide: UserFacade,
-      inject: [CommandBus, QueryBus, EventBus],
+      inject: [CommandBus, QueryBus],
       useFactory: UserFacadeFactory,
     },
-    CreateUserHandler,
+    ...CommandHandlers,
+    ...QueryHandlers,
     { provide: RabbitServicePort, useClass: RabbitServiceAdapter },
     { provide: UserDBPort, useClass: UserDBAdapter },
     ...EventHandlers,

@@ -17,18 +17,26 @@ import type * as Prisma from "./prismaNamespace.js"
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.3.0",
-  "engineVersion": "9d6ad21cbbceab97458517b147a6a09ff43aa735",
+  "clientVersion": "7.4.0",
+  "engineVersion": "ab56fe763f921d033a6c195e7ddeb3e255bdbb57",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider     = \"prisma-client\"\n  output       = \"./generated\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel Actor {\n  id        String  @id @default(uuid()) @db.Uuid\n  author    String?\n  createdAt String\n  updatedAt String\n}\n\nmodel OutboxEvent {\n  id            String    @id @default(cuid())\n  topic         String\n  payload       Json\n  createdAt     DateTime  @default(now())\n  processedAt   DateTime?\n  attempts      Int       @default(0)\n  nextAttemptAt DateTime  @default(now())\n  lastError     String?\n  lockedAt      DateTime?\n  lockedBy      String?\n\n  @@index([processedAt, nextAttemptAt])\n  @@index([lockedAt])\n}\n",
+  "inlineSchema": "generator client {\n  provider     = \"prisma-client\"\n  output       = \"./generated\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nmodel User {\n  id         String   @id @unique @default(cuid())\n  userName   String   @unique\n  telegramId String?  @unique\n  userImage  String?\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n}\n\nmodel OutboxEvent {\n  id            String    @id @default(cuid())\n  topic         String\n  payload       Json\n  createdAt     DateTime  @default(now())\n  processedAt   DateTime?\n  attempts      Int       @default(0)\n  nextAttemptAt DateTime  @default(now())\n  lastError     String?\n  lockedAt      DateTime?\n  lockedBy      String?\n\n  @@index([processedAt, nextAttemptAt])\n  @@index([lockedAt])\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
     "types": {}
+  },
+  "parameterizationSchema": {
+    "strings": [],
+    "graph": ""
   }
 }
 
-config.runtimeDataModel = JSON.parse("{\"models\":{\"Actor\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"author\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null},\"OutboxEvent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"processedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"attempts\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nextAttemptAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastError\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lockedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lockedBy\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.runtimeDataModel = JSON.parse("{\"models\":{\"User\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userName\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"telegramId\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"userImage\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"updatedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"}],\"dbName\":null},\"OutboxEvent\":{\"fields\":[{\"name\":\"id\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"topic\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"payload\",\"kind\":\"scalar\",\"type\":\"Json\"},{\"name\":\"createdAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"processedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"attempts\",\"kind\":\"scalar\",\"type\":\"Int\"},{\"name\":\"nextAttemptAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lastError\",\"kind\":\"scalar\",\"type\":\"String\"},{\"name\":\"lockedAt\",\"kind\":\"scalar\",\"type\":\"DateTime\"},{\"name\":\"lockedBy\",\"kind\":\"scalar\",\"type\":\"String\"}],\"dbName\":null}},\"enums\":{},\"types\":{}}")
+config.parameterizationSchema = {
+  strings: JSON.parse("[\"where\",\"User.findUnique\",\"User.findUniqueOrThrow\",\"orderBy\",\"cursor\",\"User.findFirst\",\"User.findFirstOrThrow\",\"User.findMany\",\"data\",\"User.createOne\",\"User.createMany\",\"User.createManyAndReturn\",\"User.updateOne\",\"User.updateMany\",\"User.updateManyAndReturn\",\"create\",\"update\",\"User.upsertOne\",\"User.deleteOne\",\"User.deleteMany\",\"having\",\"_count\",\"_min\",\"_max\",\"User.groupBy\",\"User.aggregate\",\"OutboxEvent.findUnique\",\"OutboxEvent.findUniqueOrThrow\",\"OutboxEvent.findFirst\",\"OutboxEvent.findFirstOrThrow\",\"OutboxEvent.findMany\",\"OutboxEvent.createOne\",\"OutboxEvent.createMany\",\"OutboxEvent.createManyAndReturn\",\"OutboxEvent.updateOne\",\"OutboxEvent.updateMany\",\"OutboxEvent.updateManyAndReturn\",\"OutboxEvent.upsertOne\",\"OutboxEvent.deleteOne\",\"OutboxEvent.deleteMany\",\"_avg\",\"_sum\",\"OutboxEvent.groupBy\",\"OutboxEvent.aggregate\",\"AND\",\"OR\",\"NOT\",\"id\",\"topic\",\"payload\",\"createdAt\",\"processedAt\",\"attempts\",\"nextAttemptAt\",\"lastError\",\"lockedAt\",\"lockedBy\",\"equals\",\"in\",\"notIn\",\"lt\",\"lte\",\"gt\",\"gte\",\"contains\",\"startsWith\",\"endsWith\",\"not\",\"string_contains\",\"string_starts_with\",\"string_ends_with\",\"array_starts_with\",\"array_ends_with\",\"array_contains\",\"userName\",\"telegramId\",\"userImage\",\"updatedAt\",\"set\",\"increment\",\"decrement\",\"multiply\",\"divide\"]"),
+  graph: "XRMgCSwAAE8AMC0AAAQAEC4AAE8AMC8BAAAAATJAAEoAIUoBAAAAAUsBAAAAAUwBAE0AIU1AAEoAIQEAAAABACABAAAAAQAgCSwAAE8AMC0AAAQAEC4AAE8AMC8BAEgAITJAAEoAIUoBAEgAIUsBAE0AIUwBAE0AIU1AAEoAIQJLAABQACBMAABQACADAAAABAAgAwAABQAwBAAAAQAgAwAAAAQAIAMAAAUAMAQAAAEAIAMAAAAEACADAAAFADAEAAABACAGLwEAAAABMkAAAAABSgEAAAABSwEAAAABTAEAAAABTUAAAAABAQgAAAkAIAYvAQAAAAEyQAAAAAFKAQAAAAFLAQAAAAFMAQAAAAFNQAAAAAEBCAAACwAwAQgAAAsAMAYvAQBWACEyQABXACFKAQBWACFLAQBaACFMAQBaACFNQABXACECAAAAAQAgCAAADgAgBi8BAFYAITJAAFcAIUoBAFYAIUsBAFoAIUwBAFoAIU1AAFcAIQIAAAAEACAIAAAQACACAAAABAAgCAAAEAAgAwAAAAEAIA8AAAkAIBAAAA4AIAEAAAABACABAAAABAAgBRUAAFsAIBYAAF0AIBcAAFwAIEsAAFAAIEwAAFAAIAksAABOADAtAAAXABAuAABOADAvAQA0ACEyQAA2ACFKAQA0ACFLAQA5ACFMAQA5ACFNQAA2ACEDAAAABAAgAwAAFgAwFAAAFwAgAwAAAAQAIAMAAAUAMAQAAAEAIA0sAABHADAtAAAdABAuAABHADAvAQAAAAEwAQBIACExAABJACAyQABKACEzQABLACE0AgBMACE1QABKACE2AQBNACE3QABLACE4AQBNACEBAAAAGgAgAQAAABoAIA0sAABHADAtAAAdABAuAABHADAvAQBIACEwAQBIACExAABJACAyQABKACEzQABLACE0AgBMACE1QABKACE2AQBNACE3QABLACE4AQBNACEEMwAAUAAgNgAAUAAgNwAAUAAgOAAAUAAgAwAAAB0AIAMAAB4AMAQAABoAIAMAAAAdACADAAAeADAEAAAaACADAAAAHQAgAwAAHgAwBAAAGgAgCi8BAAAAATABAAAAATGAAAAAATJAAAAAATNAAAAAATQCAAAAATVAAAAAATYBAAAAATdAAAAAATgBAAAAAQEIAAAiACAKLwEAAAABMAEAAAABMYAAAAABMkAAAAABM0AAAAABNAIAAAABNUAAAAABNgEAAAABN0AAAAABOAEAAAABAQgAACQAMAEIAAAkADAKLwEAVgAhMAEAVgAhMYAAAAABMkAAVwAhM0AAWAAhNAIAWQAhNUAAVwAhNgEAWgAhN0AAWAAhOAEAWgAhAgAAABoAIAgAACcAIAovAQBWACEwAQBWACExgAAAAAEyQABXACEzQABYACE0AgBZACE1QABXACE2AQBaACE3QABYACE4AQBaACECAAAAHQAgCAAAKQAgAgAAAB0AIAgAACkAIAMAAAAaACAPAAAiACAQAAAnACABAAAAGgAgAQAAAB0AIAkVAABRACAWAABUACAXAABTACAoAABSACApAABVACAzAABQACA2AABQACA3AABQACA4AABQACANLAAAMwAwLQAAMAAQLgAAMwAwLwEANAAhMAEANAAhMQAANQAgMkAANgAhM0AANwAhNAIAOAAhNUAANgAhNgEAOQAhN0AANwAhOAEAOQAhAwAAAB0AIAMAAC8AMBQAADAAIAMAAAAdACADAAAeADAEAAAaACANLAAAMwAwLQAAMAAQLgAAMwAwLwEANAAhMAEANAAhMQAANQAgMkAANgAhM0AANwAhNAIAOAAhNUAANgAhNgEAOQAhN0AANwAhOAEAOQAhDhUAAD4AIBYAAEYAIBcAAEYAIDkBAAAAAToBAAAABDsBAAAABDwBAAAAAT0BAAAAAT4BAAAAAT8BAAAAAUABAAAAAUEBAAAAAUIBAAAAAUMBAEUAIQ8VAAA-ACAWAABEACAXAABEACA5gAAAAAE8gAAAAAE9gAAAAAE-gAAAAAE_gAAAAAFDgAAAAAFEAQAAAAFFAQAAAAFGAQAAAAFHgAAAAAFIgAAAAAFJgAAAAAELFQAAPgAgFgAAQwAgFwAAQwAgOUAAAAABOkAAAAAEO0AAAAAEPEAAAAABPUAAAAABPkAAAAABP0AAAAABQ0AAQgAhCxUAADsAIBYAAEEAIBcAAEEAIDlAAAAAATpAAAAABTtAAAAABTxAAAAAAT1AAAAAAT5AAAAAAT9AAAAAAUNAAEAAIQ0VAAA-ACAWAAA-ACAXAAA-ACAoAAA_ACApAAA-ACA5AgAAAAE6AgAAAAQ7AgAAAAQ8AgAAAAE9AgAAAAE-AgAAAAE_AgAAAAFDAgA9ACEOFQAAOwAgFgAAPAAgFwAAPAAgOQEAAAABOgEAAAAFOwEAAAAFPAEAAAABPQEAAAABPgEAAAABPwEAAAABQAEAAAABQQEAAAABQgEAAAABQwEAOgAhDhUAADsAIBYAADwAIBcAADwAIDkBAAAAAToBAAAABTsBAAAABTwBAAAAAT0BAAAAAT4BAAAAAT8BAAAAAUABAAAAAUEBAAAAAUIBAAAAAUMBADoAIQg5AgAAAAE6AgAAAAU7AgAAAAU8AgAAAAE9AgAAAAE-AgAAAAE_AgAAAAFDAgA7ACELOQEAAAABOgEAAAAFOwEAAAAFPAEAAAABPQEAAAABPgEAAAABPwEAAAABQAEAAAABQQEAAAABQgEAAAABQwEAPAAhDRUAAD4AIBYAAD4AIBcAAD4AICgAAD8AICkAAD4AIDkCAAAAAToCAAAABDsCAAAABDwCAAAAAT0CAAAAAT4CAAAAAT8CAAAAAUMCAD0AIQg5AgAAAAE6AgAAAAQ7AgAAAAQ8AgAAAAE9AgAAAAE-AgAAAAE_AgAAAAFDAgA-ACEIOQgAAAABOggAAAAEOwgAAAAEPAgAAAABPQgAAAABPggAAAABPwgAAAABQwgAPwAhCxUAADsAIBYAAEEAIBcAAEEAIDlAAAAAATpAAAAABTtAAAAABTxAAAAAAT1AAAAAAT5AAAAAAT9AAAAAAUNAAEAAIQg5QAAAAAE6QAAAAAU7QAAAAAU8QAAAAAE9QAAAAAE-QAAAAAE_QAAAAAFDQABBACELFQAAPgAgFgAAQwAgFwAAQwAgOUAAAAABOkAAAAAEO0AAAAAEPEAAAAABPUAAAAABPkAAAAABP0AAAAABQ0AAQgAhCDlAAAAAATpAAAAABDtAAAAABDxAAAAAAT1AAAAAAT5AAAAAAT9AAAAAAUNAAEMAIQw5gAAAAAE8gAAAAAE9gAAAAAE-gAAAAAE_gAAAAAFDgAAAAAFEAQAAAAFFAQAAAAFGAQAAAAFHgAAAAAFIgAAAAAFJgAAAAAEOFQAAPgAgFgAARgAgFwAARgAgOQEAAAABOgEAAAAEOwEAAAAEPAEAAAABPQEAAAABPgEAAAABPwEAAAABQAEAAAABQQEAAAABQgEAAAABQwEARQAhCzkBAAAAAToBAAAABDsBAAAABDwBAAAAAT0BAAAAAT4BAAAAAT8BAAAAAUABAAAAAUEBAAAAAUIBAAAAAUMBAEYAIQ0sAABHADAtAAAdABAuAABHADAvAQBIACEwAQBIACExAABJACAyQABKACEzQABLACE0AgBMACE1QABKACE2AQBNACE3QABLACE4AQBNACELOQEAAAABOgEAAAAEOwEAAAAEPAEAAAABPQEAAAABPgEAAAABPwEAAAABQAEAAAABQQEAAAABQgEAAAABQwEARgAhDDmAAAAAATyAAAAAAT2AAAAAAT6AAAAAAT-AAAAAAUOAAAAAAUQBAAAAAUUBAAAAAUYBAAAAAUeAAAAAAUiAAAAAAUmAAAAAAQg5QAAAAAE6QAAAAAQ7QAAAAAQ8QAAAAAE9QAAAAAE-QAAAAAE_QAAAAAFDQABDACEIOUAAAAABOkAAAAAFO0AAAAAFPEAAAAABPUAAAAABPkAAAAABP0AAAAABQ0AAQQAhCDkCAAAAAToCAAAABDsCAAAABDwCAAAAAT0CAAAAAT4CAAAAAT8CAAAAAUMCAD4AIQs5AQAAAAE6AQAAAAU7AQAAAAU8AQAAAAE9AQAAAAE-AQAAAAE_AQAAAAFAAQAAAAFBAQAAAAFCAQAAAAFDAQA8ACEJLAAATgAwLQAAFwAQLgAATgAwLwEANAAhMkAANgAhSgEANAAhSwEAOQAhTAEAOQAhTUAANgAhCSwAAE8AMC0AAAQAEC4AAE8AMC8BAEgAITJAAEoAIUoBAEgAIUsBAE0AIUwBAE0AIU1AAEoAIQAAAAAAAAFOAQAAAAEBTkAAAAABAU5AAAAAAQVOAgAAAAFPAgAAAAFQAgAAAAFRAgAAAAFSAgAAAAEBTgEAAAABAAAAAAAAAAMVAAYWAAcXAAgAAAADFQAGFgAHFwAIAAAABRUADhYAERcAEigADykAEAAAAAAABRUADhYAERcAEigADykAEAECAQIDAQUGAQYHAQcIAQkKAQoMAgsNAwwPAQ0RAg4SBBETARIUARMVAhgYBRkZCRobChscChwfCh0gCh4hCh8jCiAlAiEmCyIoCiMqAiQrDCUsCiYtCicuAioxDSsyEw"
+}
 
 async function decodeBase64AsWasm(wasmBase64: string): Promise<WebAssembly.Module> {
   const { Buffer } = await import('node:buffer')
@@ -60,8 +68,8 @@ export interface PrismaClientConstructor {
    * @example
    * ```
    * const prisma = new PrismaClient()
-   * // Fetch zero or more Actors
-   * const actors = await prisma.actor.findMany()
+   * // Fetch zero or more Users
+   * const users = await prisma.user.findMany()
    * ```
    * 
    * Read more in our [docs](https://pris.ly/d/client).
@@ -82,8 +90,8 @@ export interface PrismaClientConstructor {
  * @example
  * ```
  * const prisma = new PrismaClient()
- * // Fetch zero or more Actors
- * const actors = await prisma.actor.findMany()
+ * // Fetch zero or more Users
+ * const users = await prisma.user.findMany()
  * ```
  * 
  * Read more in our [docs](https://pris.ly/d/client).
@@ -177,14 +185,14 @@ export interface PrismaClient<
   }>>
 
       /**
-   * `prisma.actor`: Exposes CRUD operations for the **Actor** model.
+   * `prisma.user`: Exposes CRUD operations for the **User** model.
     * Example usage:
     * ```ts
-    * // Fetch zero or more Actors
-    * const actors = await prisma.actor.findMany()
+    * // Fetch zero or more Users
+    * const users = await prisma.user.findMany()
     * ```
     */
-  get actor(): Prisma.ActorDelegate<ExtArgs, { omit: OmitOpts }>;
+  get user(): Prisma.UserDelegate<ExtArgs, { omit: OmitOpts }>;
 
   /**
    * `prisma.outboxEvent`: Exposes CRUD operations for the **OutboxEvent** model.

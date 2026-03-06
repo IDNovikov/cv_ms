@@ -15,18 +15,15 @@ export class CreateUserHandler implements ICommandHandler<
   ) {}
 
   async execute({ dto }: CreateUserCommand): Promise<UserAggregate> {
-    const user = this.publisher.mergeObjectContext(UserAggregate.create(dto));
-
-    const existingUser = await this.userRepository.findById(user.id);
-
-    if (user.createdAt === existingUser?.createdAt) {
-      throw new ConflictException(`User has created`);
+    const existingUser = await this.userRepository.findByUserName(dto.userName);
+    if (existingUser) {
+      throw new ConflictException(
+        `User with userName "${dto.userName}" already exists`,
+      );
     }
-    const created = await this.userRepository.save(user);
 
-    // const { created } = await this.userRepository.transaction(async (repo) => {
-    //   return { created };
-    // });
+    const user = this.publisher.mergeObjectContext(UserAggregate.create(dto));
+    const created = await this.userRepository.save(user);
 
     user.commit();
     return created;

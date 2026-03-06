@@ -453,10 +453,6 @@ export type OutboxEventSumOrderByAggregateInput = {
   attempts?: Prisma.SortOrder
 }
 
-export type DateTimeFieldUpdateOperationsInput = {
-  set?: Date | string
-}
-
 export type NullableDateTimeFieldUpdateOperationsInput = {
   set?: Date | string | null
 }

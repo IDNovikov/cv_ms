@@ -9,14 +9,15 @@ datasource db {
   provider = "postgresql"
 }
 
-model Actor {
-  id String @id @default(uuid()) @db.Uuid
-  author String?
-  createdAt String
-  updatedAt String
+model User {
+    id String   @id @default(cuid()) @unique
+    userName String @unique
+    telegramId String? @unique 
+ userImage String? 
+createdAt  DateTime @default(now())
+    updatedAt  DateTime @updatedAt
 }
-
-model OutboxEvent {
+    model OutboxEvent {
   id            String   @id @default(cuid())
   topic         String
   payload       Json

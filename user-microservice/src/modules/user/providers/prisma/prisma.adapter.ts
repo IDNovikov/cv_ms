@@ -1,8 +1,8 @@
-import { PrismaService } from 'src/modules/core/prisma/prisma.service';
-import { UserDBPort, Paginated, TxFn } from './prisma.port';
-import { UserAggregate } from '../../domain';
 import { Injectable } from '@nestjs/common';
-import { Prisma } from 'prisma/generated/browser';
+import { Prisma } from 'prisma/generated/client';
+import { PrismaService } from 'src/modules/core/prisma/prisma.service';
+import { UserAggregate } from '../../domain';
+import { Paginated, UserDBPort } from './prisma.port';
 
 @Injectable()
 export class UserDBAdapter extends UserDBPort {
@@ -10,18 +10,20 @@ export class UserDBAdapter extends UserDBPort {
     super();
   }
 
-  async save(actor: UserAggregate): Promise<UserAggregate> {
-    const row = await this.prisma.actor.upsert({
-      where: { id: actor.id },
+  async save(user: UserAggregate): Promise<UserAggregate> {
+    const data = user.toPersistence();
+    const row = await this.prisma.user.upsert({
+      where: { id: data.id },
       create: {
-        id: actor.id,
-        author: actor.author,
-        createdAt: actor.createdAt,
-        updatedAt: actor.updatedAt,
+        id: data.id,
+        userName: data.userName,
+        telegramId: data.telegramId,
+        userImage: data.userImage,
       },
       update: {
-        author: actor.author,
-        updatedAt: actor.updatedAt,
+        userName: data.userName,
+        telegramId: data.telegramId,
+        userImage: data.userImage,
       },
     });
 
@@ -29,44 +31,50 @@ export class UserDBAdapter extends UserDBPort {
   }
 
   async findById(id: string): Promise<UserAggregate | null> {
-    const row = await this.prisma.actor.findUnique({ where: { id } });
+    const row = await this.prisma.user.findUnique({ where: { id } });
     return row ? UserAggregate.restore(row) : null;
   }
 
-  async findAll<TSort extends string>(
-    dto: Paginated<TSort>,
-  ): Promise<{ data: UserAggregate[]; total: number }> {
+  async findByUserName(userName: string): Promise<UserAggregate | null> {
+    const row = await this.prisma.user.findUnique({
+      where: { userName: userName.trim() },
+    });
+    return row ? UserAggregate.restore(row) : null;
+  }
+
+  async findAll(dto: Paginated): Promise<{ data: UserAggregate[]; total: number }> {
     const {
       page = 1,
       limit = 20,
-      sortBy = 'createdAt' as any,
-      order = 'desc' as any,
+      sortBy = 'createdAt',
+      order = 'desc',
       search,
     } = dto;
-    const where: Prisma.ActorWhereInput = search
+
+    const where: Prisma.UserWhereInput = search?.trim()
       ? {
-          OR: [{ author: { contains: search, mode: 'insensitive' } }],
+          OR: [
+            { userName: { contains: search.trim(), mode: 'insensitive' } },
+            { telegramId: { contains: search.trim(), mode: 'insensitive' } },
+          ],
         }
       : {};
 
     const [items, total] = await Promise.all([
-      this.prisma.actor.findMany({
+      this.prisma.user.findMany({
         where,
         orderBy: { [sortBy]: order },
         skip: (page - 1) * limit,
         take: limit,
       }),
-      this.prisma.actor.count({ where }),
+      this.prisma.user.count({ where }),
     ]);
 
-    return { data: items.map(UserAggregate.restore), total };
+    return { data: items.map((el) => UserAggregate.restore(el)), total };
   }
 
-  // async transaction<T>(fn: TxFn<userRepository, T>): Promise<T> {
-  //   return this.prisma.transaction(async (tx) => {
-  //     const txRepo = new PrismaActorRepository(tx);
-  //     return fn(txRepo);
-  //   });
-  // }
+  async delete(id: string): Promise<boolean> {
+    const deleted = await this.prisma.user.deleteMany({ where: { id } });
+    return deleted.count > 0;
+  }
 }
-

@@ -1,7 +1,9 @@
 export interface IUser {
   id: string;
-  author: string | null;
-  createdAt: string;
-  updatedAt: string;
+  userName: string;
+  telegramId: string | null;
+  userImage: string | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 

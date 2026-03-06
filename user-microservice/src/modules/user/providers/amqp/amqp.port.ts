@@ -1,4 +1,4 @@
 export abstract class RabbitServicePort {
-  abstract AmqpSendMail(payload): Promise<void>;
+  abstract AmqpSendMail(payload: unknown): Promise<void>;
 }
 

@@ -1,7 +1,8 @@
 export class UserCreatedEvent {
   constructor(
-    public readonly actor: string | null,
-    public readonly at: string,
+    public readonly userId: string,
+    public readonly userName: string,
+    public readonly at: Date,
   ) {}
 }
 

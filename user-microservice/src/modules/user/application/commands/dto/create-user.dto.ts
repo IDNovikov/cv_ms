@@ -1,3 +1,5 @@
 export class CreateUserDTO {
-  author: string | null = null;
+  userName!: string;
+  telegramId?: string | null;
+  userImage?: string | null;
 }

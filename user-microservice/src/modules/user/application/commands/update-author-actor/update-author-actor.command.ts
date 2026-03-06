@@ -1,6 +1,6 @@
-import { UpdateUserAuthorDTO } from '../dto/update-author-actor.dto';
+import { UpdateUserDTO } from '../dto/update-user.dto';
 
-export class UpdateUserAuthorCommand {
-  constructor(public readonly dto: UpdateUserAuthorDTO) {}
+export class UpdateUserCommand {
+  constructor(public readonly dto: UpdateUserDTO) {}
 }
 

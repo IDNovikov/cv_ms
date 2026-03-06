@@ -8,7 +8,3 @@ export abstract class UserRpcPort {
     userName: string;
   }): Promise<UserRPCData | null>;
 }
-
-export type UserRPCData = {
-  userId: string;
-};

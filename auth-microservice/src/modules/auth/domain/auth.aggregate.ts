@@ -1,4 +1,4 @@
-import { Auth } from 'prisma/generated/prisma/browser';
+import type { Auth } from '@prisma/client';
 import { IAuth } from './auth.interface';
 
 export class AuthAggregate implements IAuth {

@@ -5,8 +5,7 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider = "prisma-client"
-  output   = "../prisma/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -15,7 +14,7 @@ datasource db {
 
 model Auth {
 id String   @id @default(cuid())
-userId String? @unique
+userId String @unique
 isEmailVerified Boolean @default(false)
 role userRoles @default(USER)
 status userStatus @default(ACTIVE)

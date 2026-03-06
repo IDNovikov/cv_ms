@@ -1,36 +1,44 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
+import { randomUUID } from 'crypto';
+import { UserRPCData, UserRpcPort } from './user-rpc.port';
+import {
+  USER_SERVICE_NAME,
+  UserServiceClient,
+} from '@noildm/contracts/dist/gen/user';
 import type { ClientGrpc } from '@nestjs/microservices';
-import {
-  AuthServiceClient,
-  AUTH_SERVICE_NAME,
-  type RegistrationRequest,
-  type RegistrationResponse,
-} from '@noildm/contracts/dist/gen/auth';
-import {
-  TestServiceClient,
-  TEST_SERVICE_NAME,
-  type TestRequest,
-  type TestResponse,
-} from '@noildm/contracts/dist/gen/test';
 
 @Injectable()
-export class AuthClientGRPC implements OnModuleInit {
-  private authService: TestServiceClient;
+export class UserRpcAdapter extends UserRpcPort implements OnModuleInit {
+  private userService: UserServiceClient;
 
   public constructor(
-    @Inject(TEST_SERVICE_NAME) private readonly client: ClientGrpc,
-  ) {}
-
+    @Inject(USER_SERVICE_NAME) private readonly client: ClientGrpc,
+  ) {
+    super();
+  }
   public onModuleInit() {
-    this.authService = this.client.getService<TestServiceClient>('TestService');
+    this.userService =
+      this.client.getService<UserServiceClient>(USER_SERVICE_NAME);
   }
 
-  // public registration(request: RegistrationRequest) {
-  //   return this.authService.registration(request);
-  // }
+  async getUserByName(userName: string): Promise<UserRPCData | null> {
+    return this.userService.getUserByUserName({ userName }) ?? null;
+  }
 
-  public test(request: TestRequest) {
-    return this.authService.test(request);
+  async getUserById(id: string): Promise<UserRPCData | null> {
+    return this.userService.get(id) ?? null;
+  }
+
+  async createUser({
+    userName,
+  }: {
+    userName: string;
+  }): Promise<UserRPCData | null> {
+    const existed = this.userService.get(userName);
+    if (existed) return existed;
+
+    this.userService.set(userName, user);
+
+    return user;
   }
 }
-////

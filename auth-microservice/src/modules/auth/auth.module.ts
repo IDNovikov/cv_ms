@@ -18,9 +18,44 @@ import { PasswordFacade } from './password/password.facade';
 import { SessionFacade } from './session/session.facade';
 import { AmqpModule } from '../core/amqp/amqp.module';
 import { AuthGrpcController } from './api/gRPC/auth.grpc.controller';
-
+import { AuthDBPort } from './providers/prisma/prisma.port';
+import { ActorDBAdapter } from './providers/prisma/prisma.adapter';
+import { HashPort } from './providers/hash/hash.port';
+import { HashAdapter } from './providers/hash/hash.adapter';
+import { RedisServicePort } from './providers/redis/redis.port';
+import { RedisServiceAdapter } from './providers/redis/redis.adapter';
+import { RabbitServicePort } from './providers/amqp/amqp.port';
+import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
+import { UserRpcPort } from './providers/user-rpc/user-rpc.port';
+import { UserRpcStubAdapter } from './providers/user-rpc/user-rpc.adapter';
+import { ClientsModule, Transport } from '@nestjs/microservices';
+import {
+  USER_SERVICE_NAME,
+  protobufPackage,
+} from '@noildm/contracts/dist/gen/user';
 @Module({
   imports: [
+    ClientsModule.registerAsync([
+      {
+        name: USER_SERVICE_NAME,
+        useFactory: (configService: ConfigService) => ({
+          transport: Transport.GRPC,
+          options: {
+            package: protobufPackage,
+            protoPath: 'node_modules/@noildm/contracts/proto/auth.proto',
+            url: 'localhost:50052',
+            loader: {
+              keepCase: false,
+              longs: String,
+              enums: String,
+              defaults: true,
+              oneofs: true,
+            },
+          },
+        }),
+        inject: [ConfigService],
+      },
+    ]),
     ConfigModule,
     RedisModule,
     AmqpModule,
@@ -42,6 +77,19 @@ import { AuthGrpcController } from './api/gRPC/auth.grpc.controller';
     AuthGrpcController,
   ],
   providers: [
+    { provide: AuthDBPort, useClass: ActorDBAdapter },
+    {
+      provide: HashPort,
+      inject: [ConfigService],
+      useFactory: (config: ConfigService) =>
+        new HashAdapter({
+          rounds: Number(config.get('BCRYPT_SALT_ROUNDS', 10)),
+          pepper: config.get<string>('PASSWORD_PEPPER', ''),
+        }),
+    },
+    { provide: RedisServicePort, useClass: RedisServiceAdapter },
+    { provide: RabbitServicePort, useClass: RabbitServiceAdapter },
+    { provide: UserRpcPort, useClass: UserRpcStubAdapter },
     AuthService,
     PasswordService,
     RegistrationService,
@@ -52,15 +100,6 @@ import { AuthGrpcController } from './api/gRPC/auth.grpc.controller';
     RegistrationFacade,
     PasswordFacade,
     SessionFacade,
-    // {
-    //   provide: HashService,
-    //   useFactory: (config: ConfigService) =>
-    //     new HashService({
-    //       rounds: Number(config.get('BCRYPT_SALT_ROUNDS', 10)),
-    //       pepper: config.get<string>('PASSWORD_PEPPER', ''),
-    //     }),
-    //   inject: [ConfigService],
-    // },
   ],
 })
 export class AuthModule {}

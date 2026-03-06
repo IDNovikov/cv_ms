@@ -1,6 +1,6 @@
-import { GetPaginatedUser } from '../dto/get-actors-query.dto';
+import { GetUsersQueryDto } from '../dto/get-users-query.dto';
 
 export class GetUsersQuery {
-  constructor(public readonly dto: GetPaginatedUser) {}
+  constructor(public readonly dto: GetUsersQueryDto) {}
 }
 

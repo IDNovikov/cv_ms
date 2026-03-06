@@ -1,12 +1,9 @@
-import { UAParser } from 'ua-parser-js';
-
 export function DeviceParser(userAgent: string) {
-  const parser = new UAParser(userAgent);
-  const deviceType = parser.getDevice().type || 'desktop';
-  const os = parser.getOS().name || 'Unknown OS';
-  const device =
-    deviceType === 'desktop'
-      ? 'Desktop'
-      : `${os} ${deviceType.charAt(0).toUpperCase() + deviceType.slice(1)}`;
-  return device;
+  const ua = (userAgent || '').toLowerCase();
+
+  if (!ua) return 'Desktop';
+  if (ua.includes('iphone') || ua.includes('android')) return 'Mobile';
+  if (ua.includes('ipad') || ua.includes('tablet')) return 'Tablet';
+
+  return 'Desktop';
 }

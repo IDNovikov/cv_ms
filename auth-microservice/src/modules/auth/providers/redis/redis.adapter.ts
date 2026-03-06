@@ -1,8 +1,10 @@
 import { RedisService } from 'src/modules/core/redis/redis.service';
 import { RedisServicePort } from './redis.port';
+import { Injectable } from '@nestjs/common';
 
+@Injectable()
 export class RedisServiceAdapter extends RedisServicePort {
-  private constructor(private readonly client: RedisService) {
+  constructor(private readonly client: RedisService) {
     super();
   }
 

@@ -9,8 +9,8 @@ export class RabbitServiceAdapter extends RabbitServicePort {
     super();
   }
 
-  async AmqpSendMail(payload: any): Promise<void> {
-    console.log(`IN-AMQP ${payload}`);
+  async AmqpSendMail(payload: unknown): Promise<void> {
+    console.log(`IN-AMQP ${JSON.stringify(payload)}`);
     await this.amqp.amqp.publish('mail', 'mail-send', payload);
   }
 }

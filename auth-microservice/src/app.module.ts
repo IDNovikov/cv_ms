@@ -4,7 +4,7 @@ import { AppController } from './app.controller';
 import { RedisModule } from './modules/core/redis/redis.module';
 import { PrismaModule } from './modules/core/prisma/prisma.module';
 import { AmqpModule } from './modules/core/amqp/amqp.module';
-import { ActorModule } from './modules/actor/auth.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { ActorModule } from './modules/actor/auth.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    ActorModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [],

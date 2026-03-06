@@ -1,52 +1,67 @@
 import { Injectable } from '@nestjs/common';
-import { CommandBus, EventBus, QueryBus } from '@nestjs/cqrs';
-import { CreateUserDTO } from './commands/dto/create-user.dto';
-import { CreateUserCommand } from './commands/create-user/create-user.command';
+import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { UserAggregate } from '../domain';
-import { UpdateDTO } from './commands/dto/update-author-actor.dto';
-import { UpdateUserAuthorCommand } from './commands/update-author-actor/update-author-actor.command';
+import { CreateUserCommand } from './commands/create-user/create-user.command';
+import { CreateUserDTO } from './commands/dto/create-user.dto';
+import { UpdateUserDTO } from './commands/dto/update-user.dto';
+import { UpdateUserCommand } from './commands/update-author-actor/update-author-actor.command';
+import { DeleteUserCommand } from './commands/delete-user/delete-user.command';
 import { GetUserQuery } from './queries/get-actor/get-actor-query.command';
-import { GetPaginatedUser } from './queries/dto/get-actors-query.dto';
 import { GetUsersQuery } from './queries/get-all-actors/get-actors-query.command';
+import { GetUsersQueryDto } from './queries/dto/get-users-query.dto';
+import { GetUserByUserNameQuery } from './queries/get-user-by-username/get-user-by-username.query';
 
 @Injectable()
 export class UserFacade {
   constructor(
-    private readonly CommandBus: CommandBus,
-    private readonly QueryBus: QueryBus,
-    private readonly EventBus: EventBus,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   commands = {
-    createUser: (user: CreateUserDTO) => this.createUser(user),
-    updateUserAuthor: (dto: UpdateDTO) => this.updateUserAuthor(dto),
+    createUser: (dto: CreateUserDTO) => this.createUser(dto),
+    updateUser: (dto: UpdateUserDTO) => this.updateUser(dto),
+    deleteUser: (id: string) => this.deleteUser(id),
   };
 
   queries = {
     getUserById: (id: string) => this.getUserById(id),
-    getPaginatedUsers: (dto: GetPaginatedUser) => this.getPaginatedUsers(dto),
+    getUserByUserName: (userName: string) => this.getUserByUserName(userName),
+    getPaginatedUsers: (dto: GetUsersQueryDto) => this.getPaginatedUsers(dto),
   };
 
-  private createUser(user: CreateUserDTO) {
-    return this.CommandBus.execute<CreateUserCommand, UserAggregate>(
-      new CreateUserCommand(user),
+  private createUser(dto: CreateUserDTO) {
+    return this.commandBus.execute<CreateUserCommand, UserAggregate>(
+      new CreateUserCommand(dto),
     );
   }
 
-  private updateUserAuthor(dto: UpdateDTO) {
-    return this.CommandBus.execute<UpdateUserAuthorCommand, UserAggregate>(
-      new UpdateUserAuthorCommand(dto),
+  private updateUser(dto: UpdateUserDTO) {
+    return this.commandBus.execute<UpdateUserCommand, UserAggregate>(
+      new UpdateUserCommand(dto),
+    );
+  }
+
+  private deleteUser(id: string) {
+    return this.commandBus.execute<DeleteUserCommand, boolean>(
+      new DeleteUserCommand(id),
     );
   }
 
   private getUserById(id: string) {
-    return this.QueryBus.execute<GetUserQuery, UserAggregate>(
+    return this.queryBus.execute<GetUserQuery, UserAggregate>(
       new GetUserQuery(id),
     );
   }
 
-  private getPaginatedUsers(dto: GetPaginatedUser) {
-    return this.QueryBus.execute<
+  private getUserByUserName(userName: string) {
+    return this.queryBus.execute<GetUserByUserNameQuery, UserAggregate>(
+      new GetUserByUserNameQuery(userName),
+    );
+  }
+
+  private getPaginatedUsers(dto: GetUsersQueryDto) {
+    return this.queryBus.execute<
       GetUsersQuery,
       { data: UserAggregate[]; total: number }
     >(new GetUsersQuery(dto));

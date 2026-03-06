@@ -7,7 +7,6 @@ import { RegistrationController } from './controllers/registration.controller';
 import { SessionsController } from './controllers/session.controller';
 import { PasswordController } from './controllers/password.controller';
 import { AdminController } from './controllers/admin.controller';
-
 import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from '../../shared/guards/refresh-jwt-auth.guard';
 import { RolesGuard } from '../../shared/guards/roles.guard';

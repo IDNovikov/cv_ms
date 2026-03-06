@@ -21,7 +21,6 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(getValidationPipeConfig()));
   //Interceptors
   app.useGlobalInterceptors(new LoggingInterceptors());
-
   //CORS
   app.enableCors(getCorsConfig(config));
 
@@ -30,14 +29,13 @@ async function bootstrap() {
     yamlDocumentUrl: '/openapi.yaml',
     jsonDocumentUrl: 'jsonapi.json',
   });
-
-  //APP
-  const port = config.getOrThrow<number>('PORT');
-  const host = config.getOrThrow<string>('HOST');
   //MS
   app.connectMicroservice<MicroserviceOptions>(getGrpcConfig());
   await app.startAllMicroservices();
   //HTTP
+  const port = config.getOrThrow<number>('PORT');
+  const host = config.getOrThrow<string>('HOST');
+  app.setGlobalPrefix('auth');
   await app.listen(port);
   logger.log(`🚀 Service started: ${host}:${port}`);
   logger.log(`📜 Swagger: ${host}:${port}/docs`);

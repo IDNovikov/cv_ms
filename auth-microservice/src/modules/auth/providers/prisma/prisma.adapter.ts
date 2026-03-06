@@ -2,7 +2,7 @@ import { PrismaService } from 'src/modules/core/prisma/prisma.service';
 import { AuthDBPort, Paginated } from './prisma.port';
 import { Injectable } from '@nestjs/common';
 import { AuthAggregate } from '../../domain/auth.aggregate';
-import { Prisma } from 'prisma/generated/prisma/client';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class ActorDBAdapter extends AuthDBPort {

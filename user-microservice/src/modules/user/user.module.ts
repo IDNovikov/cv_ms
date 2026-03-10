@@ -4,17 +4,15 @@ import { CommandBus, CqrsModule, QueryBus } from '@nestjs/cqrs';
 import { CreateUserHandler } from './application/commands/create-user/create-user.handler';
 import { UpdateUserHandler } from './application/commands/update-author-actor/update-author-actor.handler';
 import { DeleteUserHandler } from './application/commands/delete-user/delete-user.handler';
-import { PrismaService } from '../core/prisma/prisma.service';
-import { RedisService } from '../core/redis/redis.service';
 import { UserDBAdapter } from './providers/prisma/prisma.adapter';
 import { UserFacade } from './application';
 import { UserFacadeFactory } from './providers/user-facade.factory';
 import { PrismaModule } from '../core/prisma/prisma.module';
 import { RedisModule } from '../core/redis/redis.module';
 import { AmqpModule } from '../core/amqp/amqp.module';
-import { UserDBPort, RabbitServicePort } from './providers';
+import { UserDBPort, RabbitServicePort, RedisServicePort } from './providers';
 import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
-import { RabbitService } from '../core/amqp/amqp.service';
+import { RedisServiceAdapter } from './providers/redis/redis.adapter';
 import { UserGrpcController } from './api/gRPC/user.grpc.controller';
 import { GetUserQueryHandler } from './application/queries/get-actor/get-actor-query.handler';
 import { GetUsersQueryHandler } from './application/queries/get-all-actors/get-actors-query.handler';
@@ -32,9 +30,6 @@ const QueryHandlers = [
   imports: [CqrsModule, PrismaModule, RedisModule, AmqpModule],
   controllers: [UserGrpcController],
   providers: [
-    RabbitService,
-    PrismaService,
-    RedisService,
     {
       provide: UserFacade,
       inject: [CommandBus, QueryBus],
@@ -43,6 +38,7 @@ const QueryHandlers = [
     ...CommandHandlers,
     ...QueryHandlers,
     { provide: RabbitServicePort, useClass: RabbitServiceAdapter },
+    { provide: RedisServicePort, useClass: RedisServiceAdapter },
     { provide: UserDBPort, useClass: UserDBAdapter },
     ...EventHandlers,
   ],

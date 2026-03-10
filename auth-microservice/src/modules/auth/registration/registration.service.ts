@@ -45,14 +45,16 @@ export class RegistrationService {
 
     const hashed = await this.hash.hash(password);
 
-    const user = await this.user.createUser({
+    const { user } = await this.user.createUser({
       userName,
+      telegramId: '',
+      userImage: '',
     });
 
     if (!user) throw new ForbiddenException('User not created');
 
     const createdAuth = AuthAggregate.create({
-      userId: user.userId,
+      userId: user.id,
       email: email,
       password: hashed,
     });
@@ -92,7 +94,7 @@ export class RegistrationService {
   }
 
   async checkIsAuthVerified(email: string): Promise<AuthAggregate> {
-    const auth = await this.authDB.findById(email);
+    const auth = await this.authDB.findByEmail(email);
 
     if (!auth) throw new NotFoundException('User not found');
     if (auth?.isEmailVerified) {

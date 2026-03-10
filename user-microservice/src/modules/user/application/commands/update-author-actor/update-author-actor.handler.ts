@@ -1,8 +1,8 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
-import { NotFoundException } from '@nestjs/common';
 import { UserAggregate } from 'src/modules/user/domain';
 import { UserDBPort } from 'src/modules/user/providers';
 import { UpdateUserCommand } from './update-author-actor.command';
+import { NotFoundAppError } from 'src/common/errors';
 
 @CommandHandler(UpdateUserCommand)
 export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, UserAggregate> {
@@ -11,7 +11,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, Use
   async execute({ dto }: UpdateUserCommand): Promise<UserAggregate> {
     const existed = await this.userRepository.findById(dto.id);
     if (!existed) {
-      throw new NotFoundException(`User by id "${dto.id}" not found`);
+      throw new NotFoundAppError('User', { id: dto.id });
     }
 
     existed.update({

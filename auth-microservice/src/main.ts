@@ -30,7 +30,9 @@ async function bootstrap() {
     jsonDocumentUrl: 'jsonapi.json',
   });
   //MS
-  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig());
+  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig(), {
+    inheritAppConfig: true,
+  });
   await app.startAllMicroservices();
   //HTTP
   const port = config.getOrThrow<number>('PORT');

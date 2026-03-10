@@ -2,6 +2,7 @@ import { AggregateRoot } from '@nestjs/cqrs';
 import type { User } from 'prisma/generated/client';
 import { UserCreatedEvent } from './events/user-created.event';
 import { IUser } from './user.interface';
+import { DomainValidationError } from 'src/common/errors';
 
 export type CreateUserInput = {
   userName: string;
@@ -94,7 +95,11 @@ export class UserAggregate extends AggregateRoot implements IUser {
 
   private static normalizeUserName(value: string): string {
     const normalized = value.trim();
-    if (!normalized) throw new Error('userName is required');
+    if (!normalized) {
+      throw new DomainValidationError('userName is required', {
+        field: 'userName',
+      });
+    }
     return normalized;
   }
 

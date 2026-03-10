@@ -27,7 +27,7 @@ import { RedisServiceAdapter } from './providers/redis/redis.adapter';
 import { RabbitServicePort } from './providers/amqp/amqp.port';
 import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
 import { UserRpcPort } from './providers/user-rpc/user-rpc.port';
-import { UserRpcStubAdapter } from './providers/user-rpc/user-rpc.adapter';
+import { UserRpcAdapter } from './providers/user-rpc/user-rpc.adapter';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import {
   USER_SERVICE_NAME,
@@ -42,13 +42,13 @@ import {
           transport: Transport.GRPC,
           options: {
             package: protobufPackage,
-            protoPath: 'node_modules/@noildm/contracts/proto/auth.proto',
-            url: 'localhost:50052',
+            protoPath: 'node_modules/@noildm/contracts/proto/user.proto',
+            url: 'localhost:50053',
             loader: {
               keepCase: false,
               longs: String,
               enums: String,
-              defaults: true,
+              defaults: false,
               oneofs: true,
             },
           },
@@ -89,7 +89,7 @@ import {
     },
     { provide: RedisServicePort, useClass: RedisServiceAdapter },
     { provide: RabbitServicePort, useClass: RabbitServiceAdapter },
-    { provide: UserRpcPort, useClass: UserRpcStubAdapter },
+    { provide: UserRpcPort, useClass: UserRpcAdapter },
     AuthService,
     PasswordService,
     RegistrationService,

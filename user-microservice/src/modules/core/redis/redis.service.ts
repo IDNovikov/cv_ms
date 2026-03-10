@@ -7,23 +7,33 @@ import {
 import { ConfigService } from '@nestjs/config';
 import IORedis from 'ioredis';
 import { getRedisConfig } from './redis.config';
+import { DependencyUnavailableError, StartupError } from 'src/common/errors';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
   private client!: IORedis;
-  private readonly logger = new Logger();
+  private readonly logger = new Logger(RedisService.name);
 
   constructor(private readonly config: ConfigService) {}
 
   async onModuleInit() {
     this.client = new IORedis(getRedisConfig(this.config));
-    await this.client.connect();
     this.client.on('error', (e) => this.logger.error(e));
     this.client.on('connect', () => this.logger.log('Redis connected'));
+
+    try {
+      await this.client.connect();
+    } catch (error) {
+      throw new StartupError('Failed to connect Redis', {}, error);
+    }
   }
 
   async onModuleDestroy() {
-    await this.client?.quit();
+    try {
+      await this.client?.quit();
+    } catch (error) {
+      this.logger.error(new DependencyUnavailableError('redis', {}, error));
+    }
   }
 
   get raw() {
@@ -31,7 +41,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
   }
 
   async ping() {
-    const ping = await this.client.ping();
-    return ping;
+    try {
+      const ping = await this.client.ping();
+      return ping;
+    } catch (error) {
+      throw new DependencyUnavailableError('redis', { operation: 'ping' }, error);
+    }
   }
 }

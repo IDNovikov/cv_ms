@@ -1,44 +1,45 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
-import { randomUUID } from 'crypto';
-import { UserRPCData, UserRpcPort } from './user-rpc.port';
+import { UserRpcPort } from './user-rpc.port';
 import {
+  CreateUserRequest,
+  GetUserByIdRequest,
+  GetUserByUserNameRequest,
+  UpdateUserRequest,
   USER_SERVICE_NAME,
+  UserResponse,
   UserServiceClient,
 } from '@noildm/contracts/dist/gen/user';
 import type { ClientGrpc } from '@nestjs/microservices';
+import { firstValueFrom } from 'rxjs';
 
 @Injectable()
 export class UserRpcAdapter extends UserRpcPort implements OnModuleInit {
   private userService: UserServiceClient;
 
-  public constructor(
-    @Inject(USER_SERVICE_NAME) private readonly client: ClientGrpc,
-  ) {
+  constructor(@Inject(USER_SERVICE_NAME) private readonly client: ClientGrpc) {
     super();
   }
-  public onModuleInit() {
+
+  onModuleInit() {
     this.userService =
       this.client.getService<UserServiceClient>(USER_SERVICE_NAME);
   }
 
-  async getUserByName(userName: string): Promise<UserRPCData | null> {
-    return this.userService.getUserByUserName({ userName }) ?? null;
+  async getUserByUserName(
+    req: GetUserByUserNameRequest,
+  ): Promise<UserResponse> {
+    return firstValueFrom(this.userService.getUserByUserName(req));
   }
 
-  async getUserById(id: string): Promise<UserRPCData | null> {
-    return this.userService.get(id) ?? null;
+  async getUserById(req: GetUserByIdRequest): Promise<UserResponse> {
+    return firstValueFrom(this.userService.getUserById(req));
   }
 
-  async createUser({
-    userName,
-  }: {
-    userName: string;
-  }): Promise<UserRPCData | null> {
-    const existed = this.userService.get(userName);
-    if (existed) return existed;
+  async createUser(data: CreateUserRequest): Promise<UserResponse> {
+    return firstValueFrom(this.userService.createUser(data));
+  }
 
-    this.userService.set(userName, user);
-
-    return user;
+  async updateUser(data: UpdateUserRequest): Promise<UserResponse> {
+    return firstValueFrom(this.userService.updateUser(data));
   }
 }

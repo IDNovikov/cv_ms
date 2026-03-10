@@ -5,6 +5,7 @@ import {
   OnModuleDestroy,
   OnModuleInit,
 } from '@nestjs/common';
+import { DependencyUnavailableError } from 'src/common/errors';
 
 @Injectable()
 export class RabbitService implements OnModuleInit, OnModuleDestroy {
@@ -17,7 +18,9 @@ export class RabbitService implements OnModuleInit, OnModuleDestroy {
   }
   async onModuleInit() {
     try {
-      //await this.amqp.init();
+      if (!this.amqpConnect.connected) {
+        throw new DependencyUnavailableError('amqp', { operation: 'init' });
+      }
     } catch (err) {
       this.logger.error(err);
       throw err;
@@ -28,7 +31,9 @@ export class RabbitService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.amqpConnect.close();
     } catch (err) {
-      this.logger.error(err);
+      this.logger.error(
+        new DependencyUnavailableError('amqp', { operation: 'close' }, err),
+      );
     }
   }
 

@@ -12,7 +12,7 @@ export function getGrpcConfig(): MicroserviceOptions {
         keepCase: false,
         longs: String,
         enums: String,
-        defaults: true,
+        defaults: false,
         oneofs: true,
       },
     },

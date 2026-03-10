@@ -1,8 +1,8 @@
 import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
 import { CreateUserCommand } from './create-user.command';
 import { UserAggregate } from 'src/modules/user/domain';
-import { ConflictException } from '@nestjs/common';
 import { UserDBPort } from 'src/modules/user/providers';
+import { ConflictAppError } from 'src/common/errors';
 
 @CommandHandler(CreateUserCommand)
 export class CreateUserHandler implements ICommandHandler<
@@ -17,9 +17,7 @@ export class CreateUserHandler implements ICommandHandler<
   async execute({ dto }: CreateUserCommand): Promise<UserAggregate> {
     const existingUser = await this.userRepository.findByUserName(dto.userName);
     if (existingUser) {
-      throw new ConflictException(
-        `User with userName "${dto.userName}" already exists`,
-      );
+      throw new ConflictAppError('User', { userName: dto.userName });
     }
 
     const user = this.publisher.mergeObjectContext(UserAggregate.create(dto));

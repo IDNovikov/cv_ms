@@ -16,6 +16,8 @@ export class LoggingInterceptors implements NestInterceptor {
     next: CallHandler<any>,
   ): Observable<any> | Promise<Observable<any>> {
     const now = Date.now();
+    const reqRpc = context.switchToRpc().getData();
+    logger.info({ reqRpc }, 'Auth input data RPC');
     const handler = `${context.getClass().name}.${context.getHandler().name}`;
     logger.info({ handler }, 'Request start');
 

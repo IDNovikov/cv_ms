@@ -18,8 +18,8 @@ export class RegistrationFacade {
 
     const user = await this.registrationService.registrate(
       userName,
-      email,
       password,
+      email,
     );
 
     const { codeExpired } = await this.registrationService.sendEmailCode(email);

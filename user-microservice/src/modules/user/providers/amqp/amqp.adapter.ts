@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { RabbitServicePort } from './amqp.port';
-import { AmqpConnection } from '@golevelup/nestjs-rabbitmq';
 import { RabbitService } from 'src/modules/core/amqp/amqp.service';
+import { DependencyUnavailableError } from 'src/common/errors';
 
 @Injectable()
 export class RabbitServiceAdapter extends RabbitServicePort {
@@ -10,8 +10,15 @@ export class RabbitServiceAdapter extends RabbitServicePort {
   }
 
   async AmqpSendMail(payload: unknown): Promise<void> {
-    console.log(`IN-AMQP ${JSON.stringify(payload)}`);
-    await this.amqp.amqp.publish('mail', 'mail-send', payload);
+    try {
+      await this.amqp.amqp.publish('mail', 'mail-send', payload);
+    } catch (error) {
+      throw new DependencyUnavailableError(
+        'amqp',
+        { operation: 'publish', exchange: 'mail', routingKey: 'mail-send' },
+        error,
+      );
+    }
   }
 }
 

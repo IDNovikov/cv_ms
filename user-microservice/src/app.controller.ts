@@ -2,7 +2,7 @@ import { Controller, Get } from '@nestjs/common';
 import { PrismaService } from './modules/core/prisma/prisma.service';
 import { RedisService } from './modules/core/redis/redis.service';
 import { RabbitService } from './modules/core/amqp/amqp.service';
-import { DependencyUnavailableError } from './common/errors';
+import { DependencyUnavailableError } from './common/errors/infrastructure/errors/dependencyUnavailable.error';
 
 @Controller()
 export class AppController {

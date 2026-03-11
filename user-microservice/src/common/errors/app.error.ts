@@ -1,8 +1,101 @@
+import { HttpStatus } from '@nestjs/common';
+import { status as GrpcStatus } from '@grpc/grpc-js';
+
+export interface HttpErrorShape {
+  statusCode: number;
+  error: string;
+  code: string;
+  layer: string;
+  message: string;
+  timestamp: string;
+  path?: string;
+  method?: string;
+  details?: Record<string, unknown>;
+}
+
+export interface GrpcErrorShape {
+  code: number;
+  message: string;
+  details?: string;
+  metadata?: Record<string, unknown>;
+}
+
+export function mapAppErrorToHttpStatus(error: AppError): number {
+  switch (error.code) {
+    case 'DOMAIN_VALIDATION_FAILED':
+      return HttpStatus.BAD_REQUEST;
+    case 'ENTITY_NOT_FOUND':
+      return HttpStatus.NOT_FOUND;
+    case 'ENTITY_CONFLICT':
+      return HttpStatus.CONFLICT;
+    case 'DEPENDENCY_UNAVAILABLE':
+      return HttpStatus.SERVICE_UNAVAILABLE;
+    case 'STARTUP_ERROR':
+      return HttpStatus.SERVICE_UNAVAILABLE;
+    case 'PERSISTENCE_ERROR':
+      return HttpStatus.INTERNAL_SERVER_ERROR;
+    default:
+      return HttpStatus.INTERNAL_SERVER_ERROR;
+  }
+}
+
+export function mapAppErrorToGrpcStatus(error: AppError): number {
+  switch (error.code) {
+    case 'DOMAIN_VALIDATION_FAILED':
+      return GrpcStatus.INVALID_ARGUMENT;
+    case 'ENTITY_NOT_FOUND':
+      return GrpcStatus.NOT_FOUND;
+    case 'ENTITY_CONFLICT':
+      return GrpcStatus.ALREADY_EXISTS;
+    case 'DEPENDENCY_UNAVAILABLE':
+      return GrpcStatus.UNAVAILABLE;
+    case 'STARTUP_ERROR':
+      return GrpcStatus.UNAVAILABLE;
+    case 'PERSISTENCE_ERROR':
+      return GrpcStatus.INTERNAL;
+    default:
+      return GrpcStatus.INTERNAL;
+  }
+}
+
+export function toHttpErrorShape(
+  error: AppError,
+  status: number,
+  path?: string,
+  method?: string,
+): HttpErrorShape {
+  return {
+    statusCode: status,
+    error: HttpStatus[status] ?? 'Error',
+    code: error.code,
+    layer: error.layer,
+    message: error.message,
+    timestamp: new Date().toISOString(),
+    path,
+    method,
+    details: error.details,
+  };
+}
+
+export function toGrpcErrorShape(error: AppError): GrpcErrorShape {
+  const code = mapAppErrorToGrpcStatus(error);
+  return {
+    code,
+    message: error.message,
+    details: JSON.stringify({
+      code: error.code,
+      layer: error.layer,
+      retryable: error.retryable,
+      details: error.details,
+    }),
+  };
+}
+
 export type ErrorLayer =
   | 'domain'
   | 'application'
   | 'infrastructure'
-  | 'transport'
+  | 'api'
   | 'startup'
   | 'unknown';
 
@@ -24,94 +117,11 @@ export class AppError extends Error {
 
   constructor(options: AppErrorOptions) {
     super(options.message);
-    this.name = this.constructor.name;
+    this.name = new.target.name;
     this.code = options.code;
     this.layer = options.layer;
     this.details = options.details;
     this.cause = options.cause;
     this.retryable = options.retryable ?? false;
-  }
-}
-
-export class ApplicationError extends AppError {
-  constructor(
-    code: string,
-    message: string,
-    details?: Record<string, unknown>,
-    cause?: unknown,
-  ) {
-    super({ code, layer: 'application', message, details, cause });
-  }
-}
-
-export class NotFoundAppError extends ApplicationError {
-  constructor(entity: string, details?: Record<string, unknown>) {
-    super(
-      'ENTITY_NOT_FOUND',
-      `${entity} not found`,
-      { entity, ...details },
-    );
-  }
-}
-
-export class ConflictAppError extends ApplicationError {
-  constructor(entity: string, details?: Record<string, unknown>) {
-    super(
-      'ENTITY_CONFLICT',
-      `${entity} already exists`,
-      { entity, ...details },
-    );
-  }
-}
-
-export class InfrastructureError extends AppError {
-  constructor(
-    code: string,
-    message: string,
-    details?: Record<string, unknown>,
-    cause?: unknown,
-    retryable = true,
-  ) {
-    super({
-      code,
-      layer: 'infrastructure',
-      message,
-      details,
-      cause,
-      retryable,
-    });
-  }
-}
-
-export class PersistenceError extends InfrastructureError {
-  constructor(message: string, details?: Record<string, unknown>, cause?: unknown) {
-    super('PERSISTENCE_ERROR', message, details, cause);
-  }
-}
-
-export class DependencyUnavailableError extends InfrastructureError {
-  constructor(
-    dependency: string,
-    details?: Record<string, unknown>,
-    cause?: unknown,
-  ) {
-    super(
-      'DEPENDENCY_UNAVAILABLE',
-      `${dependency} is unavailable`,
-      { dependency, ...details },
-      cause,
-    );
-  }
-}
-
-export class StartupError extends AppError {
-  constructor(message: string, details?: Record<string, unknown>, cause?: unknown) {
-    super({
-      code: 'STARTUP_ERROR',
-      layer: 'startup',
-      message,
-      details,
-      cause,
-    });
   }
 }

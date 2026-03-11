@@ -12,7 +12,7 @@ import {
 import { LoggingInterceptors } from './common/interceptors/loggining.intrceptor';
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { GlobalExceptionFilter } from './common/filters/globalException.filter';
-import { StartupError } from './common/errors';
+import { ServerError } from './common/errors/server/server.error';
 
 async function bootstrap() {
   const bootstrapLogger = new Logger('Bootstrap');
@@ -44,11 +44,7 @@ async function bootstrap() {
   try {
     await app.listen(port);
   } catch (error) {
-    throw new StartupError(
-      'Failed to start HTTP server',
-      { host, port },
-      error,
-    );
+    throw new ServerError('Failed to start HTTP server', { host, port }, error);
   }
 
   logger.log(`Service started: ${host}:${port}`);
@@ -58,13 +54,13 @@ async function bootstrap() {
 bootstrap().catch((error) => {
   const logger = new Logger('Bootstrap');
   logger.error(error);
-  //process.exit(1);
+  process.exit(1);
 });
 
 function setupProcessHandlers(logger: Logger) {
   process.on('unhandledRejection', (reason) => {
     logger.error(
-      new StartupError(
+      new ServerError(
         'Unhandled promise rejection',
         { reason: String(reason) },
         reason,
@@ -73,10 +69,7 @@ function setupProcessHandlers(logger: Logger) {
   });
 
   process.on('uncaughtException', (error) => {
-    logger.error(
-      new StartupError('Uncaught exception', {}, error),
-      error.stack,
-    );
+    logger.error(new ServerError('Uncaught exception', {}, error), error.stack);
     process.exit(1);
   });
 }

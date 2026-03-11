@@ -11,6 +11,8 @@ import { DependencyUnavailableError } from 'src/common/errors';
 export class RabbitService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(RabbitService.name);
 
+  private ready = false;
+
   constructor(private readonly amqpConnect: AmqpConnection) {}
 
   get amqp() {
@@ -18,18 +20,19 @@ export class RabbitService implements OnModuleInit, OnModuleDestroy {
   }
   async onModuleInit() {
     try {
-      if (!this.amqpConnect.connected) {
-        throw new DependencyUnavailableError('amqp', { operation: 'init' });
-      }
+      await this.waitForReady(15000);
+      this.ready = true;
     } catch (err) {
-      this.logger.error(err);
-      throw err;
+      this.ready = false;
+
+      throw new DependencyUnavailableError('amqp', { operation: 'init' }, err);
     }
   }
 
   async onModuleDestroy() {
     try {
       await this.amqpConnect.close();
+      this.ready = false;
     } catch (err) {
       this.logger.error(
         new DependencyUnavailableError('amqp', { operation: 'close' }, err),
@@ -38,6 +41,20 @@ export class RabbitService implements OnModuleInit, OnModuleDestroy {
   }
 
   isConnected() {
-    return this.amqpConnect.connected;
+    return this.ready;
+  }
+
+  private async waitForReady(timeoutMs: number): Promise<void> {
+    const startedAt = Date.now();
+
+    while (Date.now() - startedAt < timeoutMs) {
+      if (this.amqpConnect.managedConnection?.isConnected()) {
+        return;
+      }
+
+      await new Promise((resolve) => setTimeout(resolve, 500));
+    }
+
+    throw new Error('AMQP readiness timeout');
   }
 }

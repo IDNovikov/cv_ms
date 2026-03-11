@@ -1,14 +1,9 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  Logger,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
 import { RpcException } from '@nestjs/microservices';
 import { Request, Response } from 'express';
 import {
+  ApiErrorMapper,
   mapAppErrorToHttpStatus,
-  toAppError,
   toGrpcErrorShape,
   toHttpErrorShape,
 } from '../errors';
@@ -18,7 +13,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
 
   catch(exception: unknown, host: ArgumentsHost) {
-    const appError = toAppError(exception);
+    const appError = ApiErrorMapper.map(exception);
     this.logger.error(
       {
         code: appError.code,

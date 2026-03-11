@@ -4,7 +4,7 @@ import {
   RabbitMQExchangeConfig,
 } from '@golevelup/nestjs-rabbitmq';
 import { ConfigService } from '@nestjs/config';
-import { StartupError } from 'src/common/errors';
+import { ServerError } from 'src/common/errors';
 
 const exchanges: RabbitMQExchangeConfig[] = [
   {
@@ -16,7 +16,7 @@ const exchanges: RabbitMQExchangeConfig[] = [
 export const amqpConfig = (configService: ConfigService): RabbitMQConfig => {
   const uri = configService.get('AMQP_URI');
 
-  if (!uri) throw new StartupError('"AMQP_URI" not found. Check .env');
+  if (!uri) throw new ServerError('"AMQP_URI" not found. Check .env');
 
   return {
     exchanges,

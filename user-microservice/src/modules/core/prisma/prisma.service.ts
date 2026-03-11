@@ -6,7 +6,7 @@ import {
 } from '@nestjs/common';
 import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from 'prisma/generated/client';
-import { DependencyUnavailableError, StartupError } from 'src/common/errors';
+import { DependencyUnavailableError, ServerError } from 'src/common/errors';
 
 @Injectable()
 export class PrismaService
@@ -16,7 +16,7 @@ export class PrismaService
   private readonly logger = new Logger(PrismaService.name);
   constructor() {
     if (!process.env.DATABASE_URL) {
-      throw new StartupError('DATABASE_URL is not defined');
+      throw new ServerError('DATABASE_URL is not defined');
     }
 
     const adapter = new PrismaPg({
@@ -34,7 +34,7 @@ export class PrismaService
       await this.$connect();
       this.logger.log('Db is connected');
     } catch (err) {
-      throw new StartupError('Failed to connect PostgreSQL', {}, err);
+      throw new ServerError('Failed to connect PostgreSQL', {}, err);
     }
   }
 
@@ -45,7 +45,11 @@ export class PrismaService
       this.logger.log('Db is disconnected');
     } catch (err) {
       this.logger.error(
-        new DependencyUnavailableError('postgres', { operation: 'disconnect' }, err),
+        new DependencyUnavailableError(
+          'postgres',
+          { operation: 'disconnect' },
+          err,
+        ),
       );
     }
   }

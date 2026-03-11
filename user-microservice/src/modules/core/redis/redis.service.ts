@@ -7,7 +7,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import IORedis from 'ioredis';
 import { getRedisConfig } from './redis.config';
-import { DependencyUnavailableError, StartupError } from 'src/common/errors';
+import { DependencyUnavailableError, ServerError } from 'src/common/errors';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
@@ -24,7 +24,7 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     try {
       await this.client.connect();
     } catch (error) {
-      throw new StartupError('Failed to connect Redis', {}, error);
+      throw new ServerError('Failed to connect Redis', {}, error);
     }
   }
 
@@ -45,7 +45,11 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
       const ping = await this.client.ping();
       return ping;
     } catch (error) {
-      throw new DependencyUnavailableError('redis', { operation: 'ping' }, error);
+      throw new DependencyUnavailableError(
+        'redis',
+        { operation: 'ping' },
+        error,
+      );
     }
   }
 }

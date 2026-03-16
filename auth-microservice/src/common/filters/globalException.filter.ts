@@ -1,48 +1,40 @@
-import {
-  ArgumentsHost,
-  Catch,
-  ExceptionFilter,
-  HttpException,
-  HttpStatus,
-  Logger,
-} from '@nestjs/common';
+import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
+import { RpcException } from '@nestjs/microservices';
 import { Request, Response } from 'express';
+import {
+  ApiErrorMapper,
+  mapAppErrorToHttpStatus,
+  toGrpcErrorShape,
+  toHttpErrorShape,
+} from '../errors';
 
 @Catch()
-export class GlobalExceptionFilter<T> implements ExceptionFilter {
+export class GlobalExceptionFilter implements ExceptionFilter {
   private readonly logger = new Logger(GlobalExceptionFilter.name);
-  catch(exception: T, host: ArgumentsHost) {
-    this.logger.error(exception);
+
+  catch(exception: unknown, host: ArgumentsHost) {
+    const appError = ApiErrorMapper.map(exception);
+    this.logger.error(
+      {
+        code: appError.code,
+        layer: appError.layer,
+        message: appError.message,
+        details: appError.details,
+      },
+      appError.stack,
+    );
+
+    if (host.getType() === 'rpc') {
+      throw new RpcException(toGrpcErrorShape(appError));
+    }
 
     const context = host.switchToHttp();
-
-    const res = context.getResponse<Response>();
     const req = context.getRequest<Request>();
+    const res = context.getResponse<Response>();
+    const status = mapAppErrorToHttpStatus(appError);
 
-    const status =
-      exception instanceof HttpException
-        ? exception.getStatus()
-        : HttpStatus.INTERNAL_SERVER_ERROR;
-
-    console.log(host.getType());
-
-    if (['graphql', 'rmq'].includes(host.getType())) {
-      throw new HttpException(this._response(status, req, exception), status);
-    }
-    res.status(status).json(this._response(status, req, exception));
-  }
-
-  private _response(status: number, req: Request, exception: any) {
-    return {
-      statusCode: status,
-      timeStamp: new Date().toISOString(),
-      path: req?.method,
-      params: req?.params,
-      query: req?.query,
-      exception: {
-        name: exception['name'],
-        message: exception['message'],
-      },
-    };
+    res
+      .status(status)
+      .json(toHttpErrorShape(appError, status, req?.url, req?.method));
   }
 }

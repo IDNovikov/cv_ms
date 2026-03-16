@@ -24,6 +24,7 @@ export class UserGrpcController implements UserServiceController {
 
   async createUser(request: CreateUserRequest): Promise<UserResponse> {
     const user = await this.facade.commands.createUser({
+      email: request.email,
       userName: request.userName,
       telegramId: request.telegramId || null,
       userImage: request.userImage || null,
@@ -96,7 +97,7 @@ export class UserGrpcController implements UserServiceController {
     return 'createdAt';
   }
 
-  private emptyToNull(value: string): string | null {
+  private emptyToNull(value: string | undefined): string | null {
     return value?.trim() ? value : null;
   }
 }

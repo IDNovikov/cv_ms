@@ -8,10 +8,9 @@ export class UserCreatedSendMailHandler implements IEventHandler<UserCreatedEven
 
   async handle(event: UserCreatedEvent) {
     const payload = {
-      type: 'USER_CREATED',
-      userId: event.userId,
-      userName: event.userName,
-      createdAt: event.at.toISOString(),
+      toEmail: event.email,
+      subject: event.userId,
+      text: `Hi ${event.userName} your account is created`,
     };
 
     await this.amqp.AmqpSendMail(payload);

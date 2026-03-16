@@ -1,11 +1,14 @@
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { UserAggregate } from 'src/modules/user/domain';
 import { UserDBPort } from 'src/modules/user/providers';
-import { UpdateUserCommand } from './update-author-actor.command';
+import { UpdateUserCommand } from './update-user.command';
 import { NotFoundAppError } from 'src/common/errors';
 
 @CommandHandler(UpdateUserCommand)
-export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, UserAggregate> {
+export class UpdateUserHandler implements ICommandHandler<
+  UpdateUserCommand,
+  UserAggregate
+> {
   constructor(private readonly userRepository: UserDBPort) {}
 
   async execute({ dto }: UpdateUserCommand): Promise<UserAggregate> {
@@ -15,6 +18,7 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand, Use
     }
 
     existed.update({
+      email: dto.email,
       userName: dto.userName,
       telegramId: dto.telegramId,
       userImage: dto.userImage,

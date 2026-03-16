@@ -4,14 +4,11 @@ import {
   RabbitMQExchangeConfig,
 } from '@golevelup/nestjs-rabbitmq';
 import { ConfigService } from '@nestjs/config';
+import { EXCHANGE_MAIL } from '@noildm/contracts';
+
 import { ServerError } from 'src/common/errors';
 
-const exchanges: RabbitMQExchangeConfig[] = [
-  {
-    name: 'mail',
-    type: 'direct',
-  },
-];
+const exchanges: RabbitMQExchangeConfig[] = [EXCHANGE_MAIL];
 
 export const amqpConfig = (configService: ConfigService): RabbitMQConfig => {
   const uri = configService.get('AMQP_URI');

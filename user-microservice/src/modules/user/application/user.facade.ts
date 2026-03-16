@@ -4,7 +4,7 @@ import { UserAggregate } from '../domain';
 import { CreateUserCommand } from './commands/create-user/create-user.command';
 import { CreateUserDTO } from './commands/dto/create-user.dto';
 import { UpdateUserDTO } from './commands/dto/update-user.dto';
-import { UpdateUserCommand } from './commands/update-author-actor/update-author-actor.command';
+import { UpdateUserCommand } from './commands/update-user/update-user.command';
 import { DeleteUserCommand } from './commands/delete-user/delete-user.command';
 import { GetUserQuery } from './queries/get-actor/get-actor-query.command';
 import { GetUsersQuery } from './queries/get-all-actors/get-actors-query.command';

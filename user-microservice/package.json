@@ -31,7 +31,7 @@
     "@nestjs/microservices": "^11.1.13",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.6",
-    "@noildm/contracts": "file:../contracts",
+    "@noildm/contracts": "^1.0.14",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@types/cookie-parser": "^1.4.10",

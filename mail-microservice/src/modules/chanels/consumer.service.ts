@@ -2,10 +2,9 @@ import { Injectable, Logger } from '@nestjs/common';
 import { MailService } from '../mail/mail.service';
 import {
   MessageHandlerErrorBehavior,
-  RabbitRPC,
   RabbitSubscribe,
 } from '@golevelup/nestjs-rabbitmq';
-import { SendMailContract } from '../amqp/contracts/queues/mail/send-mail.contract';
+import { SendMailContract } from '@noildm/contracts';
 
 @Injectable()
 export class ConsumerService {

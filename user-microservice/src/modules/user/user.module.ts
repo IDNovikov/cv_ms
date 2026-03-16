@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { UserCreatedSendMailHandler } from './application/events/actor-created-send-mail.handler';
 import { CommandBus, CqrsModule, QueryBus } from '@nestjs/cqrs';
 import { CreateUserHandler } from './application/commands/create-user/create-user.handler';
-import { UpdateUserHandler } from './application/commands/update-author-actor/update-author-actor.handler';
+import { UpdateUserHandler } from './application/commands/update-user/update-user.handler';
 import { DeleteUserHandler } from './application/commands/delete-user/delete-user.handler';
 import { UserDBAdapter } from './providers/prisma/prisma.adapter';
 import { UserFacade } from './application';
@@ -19,7 +19,11 @@ import { GetUsersQueryHandler } from './application/queries/get-all-actors/get-a
 import { GetUserByUserNameHandler } from './application/queries/get-user-by-username/get-user-by-username.handler';
 
 const EventHandlers = [UserCreatedSendMailHandler];
-const CommandHandlers = [CreateUserHandler, UpdateUserHandler, DeleteUserHandler];
+const CommandHandlers = [
+  CreateUserHandler,
+  UpdateUserHandler,
+  DeleteUserHandler,
+];
 const QueryHandlers = [
   GetUserQueryHandler,
   GetUsersQueryHandler,

@@ -10,7 +10,8 @@ import {
   getValidationPipeConfig,
 } from './common/config';
 import { LoggingInterceptors } from './common/interceptors/loggining.intrceptor';
-import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { MicroserviceOptions } from '@nestjs/microservices';
+import { GlobalExceptionFilter } from './common/filters/globalException.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -21,6 +22,8 @@ async function bootstrap() {
   app.useGlobalPipes(new ValidationPipe(getValidationPipeConfig()));
   //Interceptors
   app.useGlobalInterceptors(new LoggingInterceptors());
+  //Filters
+  app.useGlobalFilters(new GlobalExceptionFilter());
   //CORS
   app.enableCors(getCorsConfig(config));
 

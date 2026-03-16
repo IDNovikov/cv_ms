@@ -18,11 +18,13 @@ export class UserDBAdapter extends UserDBPort {
         where: { id: data.id },
         create: {
           id: data.id,
+          email: data.email,
           userName: data.userName,
           telegramId: data.telegramId,
           userImage: data.userImage,
         },
         update: {
+          email: data.email,
           userName: data.userName,
           telegramId: data.telegramId,
           userImage: data.userImage,

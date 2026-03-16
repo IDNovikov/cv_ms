@@ -46,6 +46,7 @@ export class RegistrationService {
     const hashed = await this.hash.hash(password);
 
     const { user } = await this.user.createUser({
+      email,
       userName,
       telegramId: '',
       userImage: '',

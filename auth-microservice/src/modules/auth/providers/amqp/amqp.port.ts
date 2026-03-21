@@ -1,3 +1,5 @@
+import { SendMailRequest } from '@noildm/contracts';
+
 export abstract class RabbitServicePort {
-  abstract AmqpSendMail(payload): Promise<void>;
+  abstract AmqpSendMail(payload: SendMailRequest): Promise<void>;
 }

@@ -6,8 +6,14 @@ export function getValidationPipeConfig(): ValidationPipeOptions {
     forbidNonWhitelisted: true,
     transform: true,
     exceptionFactory: (errors) => {
-      console.log(JSON.stringify(errors, null, 2));
-      return new BadRequestException(errors);
+      return new BadRequestException({
+        code: 'BAD_REQUEST',
+        message: 'Validation failed',
+        details: errors.map((error) => ({
+          field: error.property,
+          constraints: error.constraints ?? {},
+        })),
+      });
     },
   };
 }

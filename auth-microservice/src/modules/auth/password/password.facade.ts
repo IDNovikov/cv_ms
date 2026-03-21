@@ -25,7 +25,11 @@ export class PasswordFacade {
 
     const tempPass = this.passwordService.generateNewPassword();
     await this.passwordService.updateAuthPassword(auth?.id, tempPass);
-    await this.mail.AmqpSendMail({ email, tempPass });
+    await this.mail.AmqpSendMail({
+      toEmail: email,
+      subject: 'This is your еemporary password',
+      text: `This is temporary password: ${tempPass}. Please, change it soon for ur securyti`,
+    });
     return { message: 'Password successfully changed. Check your email' };
   }
 }

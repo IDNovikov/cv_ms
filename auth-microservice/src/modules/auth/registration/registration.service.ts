@@ -30,7 +30,11 @@ export class RegistrationService {
   ): Promise<{ code: string; codeExpired: Date }> {
     const code = get6NumberCode();
     const codeExpired = new Date(Date.now() + 10 * 60 * 1000);
-    await this.mail.AmqpSendMail({ email, code });
+    await this.mail.AmqpSendMail({
+      toEmail: email,
+      subject: 'Verification code',
+      text: `This verification code : ${code} expires after ${codeExpired.getMinutes()} mins`,
+    });
     await this.redis.set(email, { code, codeExpired }, 1800);
     return { code, codeExpired };
   }

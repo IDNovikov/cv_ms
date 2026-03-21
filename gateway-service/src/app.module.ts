@@ -1,6 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { AuthModule } from './modules/auth/auth.module';
+import { GatewayModule } from './modules/gateway/gateway.module';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { APP_GUARD } from '@nestjs/core';
@@ -20,7 +20,7 @@ import { RedisModule } from './core/redis/redis.module';
       cache: true,
     }),
     ThrottlerModule.forRoot([{ ttl: 60, limit: 100 }]),
-    AuthModule,
+    GatewayModule,
     RedisModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     //   driver: ApolloDriver,

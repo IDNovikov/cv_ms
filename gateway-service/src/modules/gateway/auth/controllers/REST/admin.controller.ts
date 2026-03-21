@@ -3,9 +3,9 @@ import { Controller, Delete, Get, Param, ParseIntPipe, UseGuards } from '@nestjs
 import { JwtAuthGuard } from '@/shared/guards/jwt-auth.guard';
 import { RolesGuard } from '@/shared/guards/roles.guard';
 import { ApiTags } from '@nestjs/swagger';
-import { UseSwagger } from '../../../common/decorators/swagger.decorator';
-import { AuthSwagger } from './docs/authSwagger.docs';
-import { FacadePort } from '../providers/facade/facade.port';
+import { UseSwagger } from '../../../../../common/decorators/swagger.decorator';
+import { AuthSwagger } from '../docs/authSwagger.docs';
+import { FacadePort } from '../../providers/facade/facade.port';
 import { Roles } from '@/shared/decorators/roles.decorator';
 
 @ApiTags('AdminAuth')

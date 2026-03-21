@@ -5,21 +5,21 @@ import { EmailDto } from './dto/email.dto';
 import { RegistrationFacade } from './registration.facade';
 import type { ISessionData } from '../shared/types/session.types';
 
-@Controller('registration')
+@Controller()
 export class RegistrationController {
   constructor(private facade: RegistrationFacade) {}
 
-  @Post()
   async registrate(@Body() dto: RegistrateDto) {
     return this.facade.registrate(dto);
   }
 
-  @Post('email/verify')
-  async verify(@Body() dto: VerifyDto, @Body('sessionData') sessionData: ISessionData) {
+  async verify(
+    @Body() dto: VerifyDto,
+    @Body('sessionData') sessionData: ISessionData,
+  ) {
     return this.facade.verifyEmail(dto, sessionData);
   }
 
-  @Post('email/new-code')
   async getNewVerificationCode(@Body() dto: EmailDto) {
     return this.facade.getNewVerificationCode(dto.email);
   }

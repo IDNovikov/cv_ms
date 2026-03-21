@@ -1,14 +1,25 @@
 import { Controller, Get } from '@nestjs/common';
 import { AppService } from './app.service';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { HealthResponseDTO } from './DTO';
 
 @Controller()
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
   @ApiOkResponse({
-    type: HealthResponseDTO,
+    schema: {
+      example: {
+        success: true,
+        data: {
+          status: 'ok',
+          timeStamp: '2026-02-02T08:51:02.751Z',
+          message: 'helth check is OK',
+        },
+        timestamp: '2026-02-02T08:51:02.751Z',
+        path: '/api/health',
+        method: 'GET',
+      },
+    },
   })
   @Get('health')
   public helthCheck(): unknown {

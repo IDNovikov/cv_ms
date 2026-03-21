@@ -28,34 +28,11 @@ import { RabbitServicePort } from './providers/amqp/amqp.port';
 import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
 import { UserRpcPort } from './providers/user-rpc/user-rpc.port';
 import { UserRpcAdapter } from './providers/user-rpc/user-rpc.adapter';
-import { ClientsModule, Transport } from '@nestjs/microservices';
-import {
-  USER_SERVICE_NAME,
-  protobufPackage,
-} from '@noildm/contracts/dist/gen/user';
+import { ClientsModule } from '@nestjs/microservices';
+import { UserGrpcClient } from 'src/common/config/userGrpc.config';
 @Module({
   imports: [
-    ClientsModule.registerAsync([
-      {
-        name: USER_SERVICE_NAME,
-        useFactory: (configService: ConfigService) => ({
-          transport: Transport.GRPC,
-          options: {
-            package: protobufPackage,
-            protoPath: 'node_modules/@noildm/contracts/proto/user.proto',
-            url: 'localhost:50053',
-            loader: {
-              keepCase: false,
-              longs: String,
-              enums: String,
-              defaults: false,
-              oneofs: true,
-            },
-          },
-        }),
-        inject: [ConfigService],
-      },
-    ]),
+    ClientsModule.registerAsync([UserGrpcClient]),
     ConfigModule,
     RedisModule,
     AmqpModule,

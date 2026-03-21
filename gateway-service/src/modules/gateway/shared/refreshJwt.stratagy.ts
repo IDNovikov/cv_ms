@@ -4,20 +4,22 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 
+type RefreshJwtPayload = {
+  sub: string;
+  email: string;
+  role: 'ADMIN' | 'USER';
+  deviceId: string;
+};
+
 @Injectable()
 export class RefreshJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor(cfg: ConfigService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([(req: Request) => req.cookies?.refresh_token]),
-      secretOrKey: cfg.get('JWT_REFRESH_SECRET') as string,
+      secretOrKey: cfg.getOrThrow('JWT_REFRESH_SECRET') as string,
     });
   }
-  async validate(payload: {
-    sub: number;
-    email: string;
-    role: 'ADMIN' | 'USER';
-    deviceId: string;
-  }) {
+  async validate(payload: RefreshJwtPayload) {
     return {
       sub: payload.sub,
       email: payload.email,

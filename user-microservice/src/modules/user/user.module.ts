@@ -13,7 +13,7 @@ import { AmqpModule } from '../core/amqp/amqp.module';
 import { UserDBPort, RabbitServicePort, RedisServicePort } from './providers';
 import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
 import { RedisServiceAdapter } from './providers/redis/redis.adapter';
-import { UserGrpcController } from './api/gRPC/user.grpc.controller';
+import { UserGrpcController } from './api/gRPC/auth-user.grpc.controller';
 import { GetUserQueryHandler } from './application/queries/get-actor/get-actor-query.handler';
 import { GetUsersQueryHandler } from './application/queries/get-all-actors/get-actors-query.handler';
 import { GetUserByUserNameHandler } from './application/queries/get-user-by-username/get-user-by-username.handler';

@@ -3,7 +3,6 @@ import { AdminFacade } from './admin.facade';
 import { parsedData } from '../session/session.service';
 
 @Controller()
-//@A
 export class AdminController {
   constructor(private facade: AdminFacade) {}
 

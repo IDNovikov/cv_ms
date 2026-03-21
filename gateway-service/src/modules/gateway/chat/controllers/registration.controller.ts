@@ -4,7 +4,7 @@ import { RegistrateDto } from './DTO/requests/registrate.dto';
 import { VerifyDto } from './DTO/requests/verify.dto';
 import { EmailDto } from './DTO/requests/email.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { UseSwagger } from '../../../common/decorators/swagger.decorator';
+import { UseSwagger } from '../../../../common/decorators/swagger.decorator';
 import { AuthSwagger } from './docs/authSwagger.docs';
 import { FacadePort } from '../providers/facade/facade.port';
 import { SessionDataDto } from './DTO';

@@ -1,10 +1,10 @@
 import { Controller, Delete, Get, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '@/shared/guards/jwt-auth.guard';
-import { DeleteSessionDTO } from './DTO/requests/deleteSession.dto';
+import { DeleteSessionDTO } from '../DTO/requests/deleteSession.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { AuthSwagger } from './docs/authSwagger.docs';
-import { UseSwagger } from '../../../common/decorators/swagger.decorator';
-import { FacadePort } from '../providers/facade/facade.port';
+import { AuthSwagger } from '../docs/authSwagger.docs';
+import { UseSwagger } from '../../../../../common/decorators/swagger.decorator';
+import { FacadePort } from '../../providers/facade/facade.port';
 import { RefreshToken } from '@/shared/decorators/refreshToken.decorator';
 
 @ApiTags('Sessions')

@@ -23,7 +23,7 @@ export class AuthFacade {
   ) {
     assertSessionData(sessionData);
     const { email, password } = dto;
-    const { sub: userId, role } = await this.authService.validateUser(
+    const { sub: userId, authId, role } = await this.authService.validateUser(
       email,
       password,
       token,
@@ -32,6 +32,7 @@ export class AuthFacade {
       await this.authService.generateAndUpdateTokens(
         {
           sub: userId,
+          authId,
           email,
           role: role,
         },
@@ -51,7 +52,7 @@ export class AuthFacade {
     sessionData: RefreshTokensRequest['sessionData'],
   ) {
     assertSessionData(sessionData);
-    const { sub, email, role, deviceId, jti } =
+    const { sub, authId, email, role, deviceId, jti } =
       await this.authService.checkRefreshToken(token);
 
     await this.sessionsService.closeSession(jti, sub, deviceId);
@@ -60,6 +61,7 @@ export class AuthFacade {
       await this.authService.generateAndUpdateTokens(
         {
           sub,
+          authId,
           email,
           role: role,
         },

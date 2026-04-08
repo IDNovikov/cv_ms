@@ -45,7 +45,8 @@ export class RegistrationFacade {
     const { access_token, refresh_token } =
       await this.authService.generateAndUpdateTokens(
         {
-          sub: user.id,
+          sub: user.userId,
+          authId: user.id,
           email,
           role: user.role,
         },
@@ -54,7 +55,7 @@ export class RegistrationFacade {
 
     return {
       user: {
-        userId: user.id,
+        userId: user.userId,
         email: user.email,
         role: user.role,
       },

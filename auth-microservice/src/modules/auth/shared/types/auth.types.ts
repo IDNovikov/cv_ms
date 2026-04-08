@@ -2,6 +2,7 @@ import { ISessionData } from './session.types';
 
 export type UnionJWTpayload = {
   sub: string;
+  authId: string;
   email: string;
   role: roles;
 };

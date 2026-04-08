@@ -41,7 +41,7 @@ export class AuthService {
   }
 
   async generateAndUpdateTokens(
-    { sub, email, role }: UnionJWTpayload,
+    { sub, authId, email, role }: UnionJWTpayload,
     sessionData: ISessionData,
   ): Promise<{ access_token: string; refresh_token: string }> {
     const deviceId = randomUUID();
@@ -49,6 +49,7 @@ export class AuthService {
 
     const accessPayload: IAccessPayload = {
       sub,
+      authId,
       email,
       role,
       jti,
@@ -56,6 +57,7 @@ export class AuthService {
 
     const refreshPayload: IRefreshPayload = {
       sub,
+      authId,
       email,
       role,
       deviceId,
@@ -101,21 +103,29 @@ export class AuthService {
       throw new UnauthorizedException('Invalid email');
     const valid = await this.hash.compare(password, auth.password);
     if (!valid) throw new UnauthorizedException('Wrong password');
-    return { sub: auth.id, email: auth.email, role: auth.role };
+    return {
+      sub: auth.userId,
+      authId: auth.id,
+      email: auth.email,
+      role: auth.role,
+    };
   }
 
   async checkRefreshToken(
     refreshToken: string,
   ): Promise<IRefreshPayload & { jti: string }> {
-    const { sub, email, role, deviceId } = await this.jwt.verify(refreshToken, {
-      secret: this._refresh_token_secret,
-    });
+    const { sub, authId, email, role, deviceId } = await this.jwt.verify(
+      refreshToken,
+      {
+        secret: this._refresh_token_secret,
+      },
+    );
     const data = await this.redis.get<RedisRefreshValue>(
       redisRefreshString(sub, deviceId),
     );
     if (!data?.hash) throw new ForbiddenException('Mismatch token');
     const match = await this.hash.compare(refreshToken, data?.hash);
     if (!match) throw new ForbiddenException('Invalid refresh token');
-    return { sub, email, role, deviceId, jti: data.jti };
+    return { sub, authId, email, role, deviceId, jti: data.jti };
   }
 }

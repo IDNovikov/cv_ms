@@ -10,6 +10,7 @@ import { GqlThrottlerGuard } from './common/guards/gql-throttler.quard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { gqlErrorHandler } from './common/errors/gql.error';
 import { RedisModule } from './core/redis/redis.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { RedisModule } from './core/redis/redis.module';
     ThrottlerModule.forRoot([{ ttl: 60, limit: 100 }]),
     GatewayModule,
     RedisModule,
+    HealthModule,
     // GraphQLModule.forRoot<ApolloDriverConfig>({
     //   driver: ApolloDriver,
     //   autoSchemaFile: true,

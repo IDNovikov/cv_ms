@@ -1,10 +1,10 @@
 import { Controller, Get } from '@nestjs/common';
-import { AppService } from './app.service';
+import { HealthService } from './health.service';
 import { ApiOkResponse } from '@nestjs/swagger';
 
 @Controller()
-export class AppController {
-  constructor(private readonly appService: AppService) {}
+export class HealthController {
+  constructor(private readonly HealthService: HealthService) {}
 
   @ApiOkResponse({
     schema: {
@@ -23,6 +23,6 @@ export class AppController {
   })
   @Get('health')
   public helthCheck(): unknown {
-    return this.appService.helthCheck();
+    return this.HealthService.helthCheck();
   }
 }

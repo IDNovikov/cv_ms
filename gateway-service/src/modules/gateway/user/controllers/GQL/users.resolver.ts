@@ -1,69 +1,74 @@
 import { Args, Int, Mutation, Query, Resolver } from '@nestjs/graphql';
-import { UsersService } from '../../users.service';
+import type { User } from '@noildm/contracts/dist/gen/user';
 import { UserGqlEntity } from './models/user-gql.entity';
-import { UserFacade } from '../../application/user.facade';
 import { UserQueryDto } from '../dto/user-query.dto';
 import { PaginatedUsers } from './response/response-with-pagination.gql';
 import { CreateUserDto } from '../dto/create-user.dto';
-import { UseGuards } from '@nestjs/common';
-import { JwtAuthGuard } from '@/modules/auth/shared/guards/jwt-auth.guard';
+import { FacadePort } from '../../providers/facade/facade.port';
 
+function mapUserToGql(user: User | undefined): UserGqlEntity {
+  const unsafeUser = (user ?? {}) as User & Record<string, unknown>;
+
+  return {
+    id: Number(unsafeUser.id ?? 0),
+    email: String(unsafeUser.email ?? ''),
+    userName: String(unsafeUser.userName ?? ''),
+    telegramId: unsafeUser.telegramId ? String(unsafeUser.telegramId) : null,
+    userImage: unsafeUser.userImage ? String(unsafeUser.userImage) : null,
+    role: String(unsafeUser.role ?? 'USER') as UserGqlEntity['role'],
+    status: String(unsafeUser.status ?? 'ACTIVE') as UserGqlEntity['status'],
+    createdAt: new Date(Number(unsafeUser.createdAt ?? Date.now())),
+    updatedAt: new Date(Number(unsafeUser.updatedAt ?? Date.now())),
+  };
+}
 
 @Resolver(() => UserGqlEntity)
 export class UserResolver {
-  constructor(
-    private userService: UsersService,
-    private userFacade: UserFacade,
-  ) {}
+  constructor(private readonly userFacade: FacadePort) {}
 
-  //@UseGuards(JwtAuthGuard)
-  @Query(() => UserGqlEntity)
-  user(@Args('id', { type: () => Int }) id: number) {
-    return this.userFacade.queries.getUser(id);
+  @Query(() => UserGqlEntity, { nullable: true })
+  async user(@Args('id', { type: () => Int }) id: number) {
+    const { user } = await this.userFacade.getUserById({ id: String(id) });
+    return user ? mapUserToGql(user) : null;
   }
 
   @Query(() => PaginatedUsers)
   async users(@Args('query') query: UserQueryDto) {
-    const { limit = 10, page = 1, order, sortBy, search } = query;
-    const { data, total } = await this.userFacade.queries.getUsers({
-      page: page,
-      limit: limit,
-      sortBy: sortBy,
-      order: order,
-      search: search,
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+
+    const result = await this.userFacade.listUsers({
+      page,
+      limit,
+      sortBy: query.sortBy ?? 'createdAt',
+      order: query.order ?? 'desc',
+      search: query.search ?? '',
     });
-    const users = data.map((u) => ({
-      id: Number(u.id),
-      email: u.email,
-      userName: u.userName,
-      telegramId: u.telegramId,
-      userImage: u.userImage,
-      role: u.role,
-      status: u.status,
-      createdAt: u.createdAt,
-      updatedAt: u.updatedAt,
-    }));
 
     return {
-      data: users,
-      total,
-      limit: query.limit,
-      offset: (page - 1) * limit,
+      data: result.items.map((user) => mapUserToGql(user)),
+      total: result.total,
+      limit: result.limit,
+      offset: (result.page - 1) * result.limit,
     };
   }
 
   @Mutation(() => UserGqlEntity)
-  createUser(@Args('input') input: CreateUserDto) {
-    return this.userFacade.commands.createUser(input);
+  async createUser(@Args('input') input: CreateUserDto) {
+    const { user } = await this.userFacade.createUser({
+      email: input.email,
+      userName: input.userName,
+      telegramId: '',
+      userImage: '',
+    });
+
+    return mapUserToGql(user);
   }
 
-  //   @Mutation(() => UserGql)
-  // updateUser(@Args('id', { type: () => Int }) id: number, @Args('input') input: UpdateUserDto) {
-  //   return this.userService.update(id, input);
-  // }
-
-  @Mutation(() => UserGqlEntity)
-  removeUser(@Args('id', { type: () => Int }) id: number) {
-    return this.userService.deleteUser(id);
+  @Mutation(() => UserGqlEntity, { nullable: true })
+  async removeUser(@Args('id', { type: () => Int }) id: number) {
+    const current = await this.userFacade.getUserById({ id: String(id) });
+    await this.userFacade.deleteUser({ id: String(id) });
+    return current.user ? mapUserToGql(current.user) : null;
   }
 }

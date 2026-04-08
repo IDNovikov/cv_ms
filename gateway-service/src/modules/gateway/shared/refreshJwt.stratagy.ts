@@ -6,6 +6,7 @@ import { Request } from 'express';
 
 type RefreshJwtPayload = {
   sub: string;
+  authId: string;
   email: string;
   role: 'ADMIN' | 'USER';
   deviceId: string;
@@ -22,6 +23,7 @@ export class RefreshJwtStrategy extends PassportStrategy(Strategy, 'jwt-refresh'
   async validate(payload: RefreshJwtPayload) {
     return {
       sub: payload.sub,
+      authId: payload.authId,
       email: payload.email,
       role: payload.role,
       deviceId: payload.deviceId,

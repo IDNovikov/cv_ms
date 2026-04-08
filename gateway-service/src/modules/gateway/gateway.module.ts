@@ -9,12 +9,16 @@ import { AdminController } from './auth/controllers/REST/admin.controller';
 import { JwtAuthGuard } from '../../shared/guards/jwt-auth.guard';
 import { RefreshJwtAuthGuard } from '../../shared/guards/refresh-jwt-auth.guard';
 import { RolesGuard } from '../../shared/guards/roles.guard';
-import { FacadePort } from './auth/providers/facade/facade.port';
-import { FacadeAdapter } from './auth/providers/facade/facade.adapter';
+import { FacadePort as AuthFacadePort } from './auth/providers/facade/facade.port';
+import { FacadeAdapter as AuthFacadeAdapter } from './auth/providers/facade/facade.adapter';
 import { JwtStrategy } from './shared/jwt.strategy';
 import { RefreshJwtStrategy } from './shared/refreshJwt.stratagy';
 import { AuthGrpcClient } from '@/common/config/authGrpc.config';
 import { UserGrpcClient } from '@/common/config/userGrpc.config';
+import { UsersController } from './user/controllers/REST/users.controller';
+import { UserResolver } from './user/controllers/GQL/users.resolver';
+import { FacadePort as UserFacadePort } from './user/providers/facade/facade.port';
+import { FacadeAdapter as UserFacadeAdapter } from './user/providers/facade/facade.adapter';
 
 @Module({
   imports: [
@@ -27,9 +31,12 @@ import { UserGrpcClient } from '@/common/config/userGrpc.config';
     SessionsController,
     PasswordController,
     AdminController,
+    UsersController,
   ],
   providers: [
-    { provide: FacadePort, useClass: FacadeAdapter },
+    { provide: AuthFacadePort, useClass: AuthFacadeAdapter },
+    { provide: UserFacadePort, useClass: UserFacadeAdapter },
+    UserResolver,
     JwtStrategy,
     RefreshJwtStrategy,
     JwtAuthGuard,

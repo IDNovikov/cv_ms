@@ -17,10 +17,10 @@ export class PasswordController {
   @UseSwagger(...AuthSwagger.ChangePass)
   async changePass(
     @Body() dto: ChangePassDto,
-    @User() user: { sub?: number | string } | undefined,
+    @User() user: { authId?: number | string } | undefined,
   ) {
-    const sub = user?.sub ?? '';
-    return this.facade.changePassword(sub, dto);
+    const authId = user?.authId ?? '';
+    return this.facade.changePassword(authId, dto);
   }
 
   @Post('forgot')

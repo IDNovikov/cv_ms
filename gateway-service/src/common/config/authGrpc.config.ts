@@ -9,7 +9,7 @@ export const AuthGrpcClient: ClientsProviderAsyncOptions = {
     options: {
       package: protobufPackage,
       protoPath: 'node_modules/@noildm/contracts/proto/auth.proto',
-      url: cfg.getOrThrow('AUTH_GRPC_URL'),
+      url: cfg.getOrThrow('AUTH_GRPC'),
       loader: {
         keepCase: false,
         longs: String,

@@ -29,6 +29,7 @@ export class RegistrationService {
     email: string,
   ): Promise<{ code: string; codeExpired: Date }> {
     const code = get6NumberCode();
+    console.log(code);
     const codeExpired = new Date(Date.now() + 10 * 60 * 1000);
     await this.mail.AmqpSendMail({
       toEmail: email,

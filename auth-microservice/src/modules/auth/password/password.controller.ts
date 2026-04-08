@@ -6,8 +6,8 @@ import { PasswordFacade } from './password.facade';
 @Controller()
 export class PasswordController {
   constructor(private facade: PasswordFacade) {}
-  async changePass(dto: ChangePassDto, user: { sub: string }) {
-    return this.facade.changePassword(user.sub, dto);
+  async changePass(dto: ChangePassDto, user: { authId: string }) {
+    return this.facade.changePassword(user.authId, dto);
   }
 
   async getTempPass(dto: GetTempPassDto) {

@@ -69,9 +69,8 @@ model ChatMember {
   chat              Chat            @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
   @@unique([chatId, userId])
-  @@index([userId])
   @@index([chatId, leftAt])
-  @@index([userId, archivedAt])
+  @@index([ archivedAt])
 }
 
 model Message {

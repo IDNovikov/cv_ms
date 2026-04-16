@@ -25,23 +25,21 @@ enum MessageKind {
   SYSTEM
 }
 
+
 model Chat {
   id               String       @id @default(uuid(7)) @db.Uuid
+  requestId  String 
   type             ChatType
   title            String?
   avatarUrl        String?
-
   /// Только для DIRECT. Нужен, чтобы не плодить дубли личек.
   /// Формат, например: "12:48" где userIds отсортированы по возрастанию
   directKey        String?      @unique
-
-  createdById      Int?
+  createdById      String
   lastMessageId    String?      @db.Uuid
   lastMessageAt    DateTime?
-
   members          ChatMember[]
   messages         Message[]
-
   createdAt        DateTime     @default(now())
   updatedAt        DateTime     @updatedAt
   deletedAt        DateTime?
@@ -52,20 +50,17 @@ model Chat {
 }
 
 model ChatMember {
+    requestId  String 
   id                String          @id @default(uuid(7)) @db.Uuid
   chatId            String          @db.Uuid
-  userId            Int
+  userId            String
   role              ChatMemberRole  @default(MEMBER)
-
   joinedAt          DateTime        @default(now())
   leftAt            DateTime?
   archivedAt        DateTime?
   mutedUntil        DateTime?
-
-  /// Самый дешевый и практичный способ хранить read-state
   lastReadMessageId String?         @db.Uuid
   lastReadAt        DateTime?
-
   chat              Chat            @relation(fields: [chatId], references: [id], onDelete: Cascade)
 
   @@unique([chatId, userId])
@@ -74,25 +69,21 @@ model ChatMember {
 }
 
 model Message {
+  requestId String @unique
   id             String       @id @default(uuid(7)) @db.Uuid
   chatId         String       @db.Uuid
-  authorId       Int
+  authorId       String
   kind           MessageKind  @default(TEXT)
-
   text           String
   isEdited       Boolean      @default(false)
   editedAt       DateTime?
   deletedAt      DateTime?
-
   /// reply / thread-lite
   replyToId      String?      @db.Uuid
-
   chat           Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
-
   /// Self relation для reply
   replyTo        Message?     @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: SetNull)
   replies        Message[]    @relation("MessageReplies")
-
   createdAt      DateTime     @default(now())
   updatedAt      DateTime     @updatedAt
 

@@ -13,11 +13,11 @@ const logger = pino({ level: 'info' });
 export class LoggingInterceptors implements NestInterceptor {
   intercept(
     context: ExecutionContext,
-    next: CallHandler<any>,
-  ): Observable<any> | Promise<Observable<any>> {
+    next: CallHandler,
+  ): Observable<unknown> | Promise<Observable<unknown>> {
     const now = Date.now();
 
-    const reqRpc = context.switchToRpc().getData();
+    const reqRpc: unknown = context.switchToRpc().getData();
     logger.info({ reqRpc }, 'Auth input data RPC');
     const handler = `${context.getClass().name}.${context.getHandler().name}`;
     logger.info({ handler }, 'Request start');

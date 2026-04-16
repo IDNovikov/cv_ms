@@ -11,7 +11,7 @@ import { ServerError } from 'src/common/errors';
 const exchanges: RabbitMQExchangeConfig[] = [EXCHANGE_MAIL];
 
 export const amqpConfig = (configService: ConfigService): RabbitMQConfig => {
-  const uri = configService.get('AMQP_URI');
+  const uri = configService.get<string>('AMQP_URI');
 
   if (!uri) throw new ServerError('"AMQP_URI" not found. Check .env');
 

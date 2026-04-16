@@ -4,7 +4,10 @@ import { DeleteUserCommand } from './delete-user.command';
 import { NotFoundAppError } from 'src/common/errors';
 
 @CommandHandler(DeleteUserCommand)
-export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand, boolean> {
+export class DeleteUserHandler implements ICommandHandler<
+  DeleteUserCommand,
+  boolean
+> {
   constructor(private readonly userRepository: UserDBPort) {}
 
   async execute({ id }: DeleteUserCommand): Promise<boolean> {

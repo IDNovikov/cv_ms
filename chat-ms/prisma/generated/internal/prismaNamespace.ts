@@ -669,6 +669,7 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const ChatScalarFieldEnum = {
   id: 'id',
+  requestId: 'requestId',
   type: 'type',
   title: 'title',
   avatarUrl: 'avatarUrl',
@@ -685,6 +686,7 @@ export type ChatScalarFieldEnum = (typeof ChatScalarFieldEnum)[keyof typeof Chat
 
 
 export const ChatMemberScalarFieldEnum = {
+  requestId: 'requestId',
   id: 'id',
   chatId: 'chatId',
   userId: 'userId',
@@ -701,6 +703,7 @@ export type ChatMemberScalarFieldEnum = (typeof ChatMemberScalarFieldEnum)[keyof
 
 
 export const MessageScalarFieldEnum = {
+  requestId: 'requestId',
   id: 'id',
   chatId: 'chatId',
   authorId: 'authorId',
@@ -776,20 +779,6 @@ export type ListEnumChatTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$Pri
 
 
 /**
- * Reference to a field of type 'Int'
- */
-export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
-    
-
-
-/**
- * Reference to a field of type 'Int[]'
- */
-export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
-    
-
-
-/**
  * Reference to a field of type 'DateTime'
  */
 export type DateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime'>
@@ -839,16 +828,16 @@ export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel,
 
 
 /**
- * Reference to a field of type 'Float'
+ * Reference to a field of type 'Int'
  */
-export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
     
 
 
 /**
- * Reference to a field of type 'Float[]'
+ * Reference to a field of type 'Int[]'
  */
-export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
+export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
     
 
 /**

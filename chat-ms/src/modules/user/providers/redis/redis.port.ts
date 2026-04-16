@@ -7,4 +7,3 @@ export abstract class RedisServicePort {
   ): Promise<{ key: string; value: T | null }[]>;
   abstract delMany(key: string): Promise<void>;
 }
-

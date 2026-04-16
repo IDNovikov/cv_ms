@@ -1,5 +1,5 @@
 import { EventsHandler, IEventHandler } from '@nestjs/cqrs';
-import { UserCreatedEvent } from '../../domain/events/user-created.event';
+import { UserCreatedEvent } from '../../domain/chat/events/user-created.event';
 import { RabbitServicePort } from '../../providers';
 
 @EventsHandler(UserCreatedEvent)

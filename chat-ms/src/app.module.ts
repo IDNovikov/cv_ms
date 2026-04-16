@@ -4,7 +4,7 @@ import { AppController } from './app.controller';
 import { RedisModule } from './modules/core/redis/redis.module';
 import { PrismaModule } from './modules/core/prisma/prisma.module';
 import { AmqpModule } from './modules/core/amqp/amqp.module';
-import { UserModule } from './modules/user/user.module';
+import { ChatModule } from './modules/user/chat.module';
 
 @Module({
   imports: [
@@ -14,7 +14,7 @@ import { UserModule } from './modules/user/user.module';
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    UserModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [],

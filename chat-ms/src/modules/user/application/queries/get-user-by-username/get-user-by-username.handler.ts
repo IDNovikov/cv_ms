@@ -5,9 +5,10 @@ import { GetUserByUserNameQuery } from './get-user-by-username.query';
 import { NotFoundAppError } from 'src/common/errors';
 
 @QueryHandler(GetUserByUserNameQuery)
-export class GetUserByUserNameHandler
-  implements IQueryHandler<GetUserByUserNameQuery, UserAggregate>
-{
+export class GetUserByUserNameHandler implements IQueryHandler<
+  GetUserByUserNameQuery,
+  UserAggregate
+> {
   constructor(private readonly userRepository: UserDBPort) {}
 
   async execute({ userName }: GetUserByUserNameQuery): Promise<UserAggregate> {

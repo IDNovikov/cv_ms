@@ -9,7 +9,7 @@ export class HttpExceptionHandler implements IApiErrorHandler {
   public handle(exception: unknown): ApiError {
     const httpException = exception as HttpException;
     const response = httpException.getResponse();
-    const status = httpException.getStatus();
+    const status = httpException.getStatus() as HttpStatus;
 
     const body =
       typeof response === 'object' && response !== null
@@ -18,13 +18,22 @@ export class HttpExceptionHandler implements IApiErrorHandler {
 
     return new ApiError(
       (body.code as string) ?? this.httpStatusToCode(status),
-      String(body.message ?? httpException.message),
+      this.resolveMessage(body.message, httpException.message),
       body,
       httpException,
     );
   }
 
-  private httpStatusToCode(status: number): string {
+  private resolveMessage(message: unknown, fallback: string): string {
+    if (typeof message === 'string') return message;
+    if (Array.isArray(message)) {
+      return message.map((item) => String(item)).join(', ');
+    }
+
+    return fallback;
+  }
+
+  private httpStatusToCode(status: HttpStatus): string {
     switch (status) {
       case HttpStatus.BAD_REQUEST:
         return 'BAD_REQUEST';

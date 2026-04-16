@@ -1,1 +1,1 @@
-export * from './user.aggregate';
+export * from './chat/user.aggregate';

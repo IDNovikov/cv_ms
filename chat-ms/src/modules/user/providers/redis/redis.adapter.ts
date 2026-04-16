@@ -1,7 +1,10 @@
 import { RedisService } from 'src/modules/core/redis/redis.service';
 import { RedisServicePort } from './redis.port';
 import { Injectable } from '@nestjs/common';
-import { DependencyUnavailableError, PersistenceError } from 'src/common/errors';
+import {
+  DependencyUnavailableError,
+  PersistenceError,
+} from 'src/common/errors';
 
 @Injectable()
 export class RedisServiceAdapter extends RedisServicePort {
@@ -14,7 +17,11 @@ export class RedisServiceAdapter extends RedisServicePort {
       const v = await this.client.raw.get(key);
       return v ? (JSON.parse(v) as T) : null;
     } catch (error) {
-      throw new DependencyUnavailableError('redis', { operation: 'get', key }, error);
+      throw new DependencyUnavailableError(
+        'redis',
+        { operation: 'get', key },
+        error,
+      );
     }
   }
 
@@ -22,7 +29,11 @@ export class RedisServiceAdapter extends RedisServicePort {
     try {
       await this.client.raw.set(key, JSON.stringify(value), 'EX', ttlSec);
     } catch (error) {
-      throw new DependencyUnavailableError('redis', { operation: 'set', key }, error);
+      throw new DependencyUnavailableError(
+        'redis',
+        { operation: 'set', key },
+        error,
+      );
     }
   }
   async del(key: string): Promise<any> {
@@ -30,7 +41,11 @@ export class RedisServiceAdapter extends RedisServicePort {
       const deleted = await this.client.raw.del(key);
       return deleted;
     } catch (error) {
-      throw new DependencyUnavailableError('redis', { operation: 'del', key }, error);
+      throw new DependencyUnavailableError(
+        'redis',
+        { operation: 'del', key },
+        error,
+      );
     }
   }
 
@@ -78,7 +93,11 @@ export class RedisServiceAdapter extends RedisServicePort {
       });
     } catch (error) {
       if (error instanceof PersistenceError) throw error;
-      throw new DependencyUnavailableError('redis', { operation: 'getMany', key }, error);
+      throw new DependencyUnavailableError(
+        'redis',
+        { operation: 'getMany', key },
+        error,
+      );
     }
   }
 
@@ -100,8 +119,11 @@ export class RedisServiceAdapter extends RedisServicePort {
         }
       } while (cursor !== '0');
     } catch (error) {
-      throw new DependencyUnavailableError('redis', { operation: 'delMany', key }, error);
+      throw new DependencyUnavailableError(
+        'redis',
+        { operation: 'delMany', key },
+        error,
+      );
     }
   }
 }
-

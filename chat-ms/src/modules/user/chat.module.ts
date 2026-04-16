@@ -47,4 +47,4 @@ const QueryHandlers = [
     ...EventHandlers,
   ],
 })
-export class UserModule {}
+export class ChatModule {}

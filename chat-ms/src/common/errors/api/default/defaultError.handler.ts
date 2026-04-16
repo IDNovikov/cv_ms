@@ -2,7 +2,8 @@ import { AppError } from '../../app.error';
 import { IApiErrorHandler } from '../api.error';
 
 export class DefaultErrorHandler implements IApiErrorHandler {
-  canHandle(_exception: unknown): boolean {
+  canHandle(exception: unknown): boolean {
+    void exception;
     return true;
   }
 

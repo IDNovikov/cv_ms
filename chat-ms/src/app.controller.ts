@@ -23,7 +23,7 @@ export class AppController {
           response: pong,
         });
       }
-      const amqp = await this.rabbit.isConnected();
+      const amqp = this.rabbit.isConnected();
       return { status: 'ok', redis: pong, rabbit: amqp };
     } catch (e) {
       throw new DependencyUnavailableError(

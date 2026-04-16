@@ -5,7 +5,10 @@ import { GetUserQuery } from './get-actor-query.command';
 import { NotFoundAppError } from 'src/common/errors';
 
 @QueryHandler(GetUserQuery)
-export class GetUserQueryHandler implements IQueryHandler<GetUserQuery, UserAggregate> {
+export class GetUserQueryHandler implements IQueryHandler<
+  GetUserQuery,
+  UserAggregate
+> {
   constructor(private readonly userRepository: UserDBPort) {}
 
   async execute({ id }: GetUserQuery): Promise<UserAggregate> {

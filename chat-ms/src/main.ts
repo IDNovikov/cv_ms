@@ -32,14 +32,14 @@ async function bootstrap() {
     jsonDocumentUrl: 'jsonapi.json',
   });
 
-  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig(), {
+  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig(config), {
     inheritAppConfig: true,
   });
   await app.startAllMicroservices();
 
   const port = config.getOrThrow<number>('PORT');
   const host = config.getOrThrow<string>('HOST');
-  app.setGlobalPrefix('users');
+  app.setGlobalPrefix('chats');
 
   try {
     await app.listen(port);

@@ -1,4 +1,3 @@
-import { ValidationError } from 'class-validator';
 import { AppError } from '../app.error';
 
 export class DomainError extends AppError {

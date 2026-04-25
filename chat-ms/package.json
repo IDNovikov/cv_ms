@@ -31,7 +31,7 @@
     "@nestjs/microservices": "^11.1.13",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.6",
-    "@noildm/contracts": "^1.0.14",
+    "@noildm/contracts": "^1.0.23",
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@types/cookie-parser": "^1.4.10",
@@ -42,7 +42,8 @@
     "pino": "^10.3.1",
     "prisma": "^7.3.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "uuid": "^14.0.0"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",

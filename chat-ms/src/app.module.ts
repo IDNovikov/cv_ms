@@ -4,7 +4,7 @@ import { AppController } from './app.controller';
 import { RedisModule } from './modules/core/redis/redis.module';
 import { PrismaModule } from './modules/core/prisma/prisma.module';
 import { AmqpModule } from './modules/core/amqp/amqp.module';
-import { ChatModule } from './modules/user/chat.module';
+import { ChatModule } from './modules/chat/chat.module';
 
 @Module({
   imports: [

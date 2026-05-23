@@ -16,6 +16,7 @@ import {
   ListResult,
 } from './prisma.port';
 import { DependencyUnavailableError } from 'src/common/errors';
+import { PrismaPromise } from 'prisma/generated/internal/prismaNamespace';
 
 @Injectable()
 export class ChatDBAdapter extends ChatDBPort {
@@ -320,6 +321,19 @@ export class ChatDBAdapter extends ChatDBPort {
       throw new DependencyUnavailableError(
         'prisma',
         { operation: 'deleteMember', chatId, userId },
+        error,
+      );
+    }
+  }
+
+  async transaction(props: PrismaPromise<any[]>[]): Promise<any[]> {
+    try {
+      const results = await this.prisma.$transaction([...props]);
+      return results;
+    } catch (error) {
+      throw new DependencyUnavailableError(
+        'prisma',
+        { operation: 'transaction' },
         error,
       );
     }

@@ -1,9 +1,10 @@
-import { CommandHandler, EventPublisher, ICommandHandler } from '@nestjs/cqrs';
-import { CreateChatCommand } from './create-chat.command';
-
+import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import { ChatDBPort } from 'src/modules/chat/providers';
 import { ConflictAppError } from 'src/common/errors';
-import { ChatDetailsView } from '../../chat.facade';
+import { ChatAggregate, MemberAggregate } from 'src/modules/chat/domain';
+import { ChatApplicationSupport } from '../../chat.application-support';
+import { ChatDetailsView } from '../../chat.new.facade';
+import { CreateChatCommand } from './create-chat.command';
 
 @CommandHandler(CreateChatCommand)
 export class CreateChatHandler implements ICommandHandler<
@@ -11,47 +12,36 @@ export class CreateChatHandler implements ICommandHandler<
   ChatDetailsView
 > {
   constructor(
-    private readonly chatRepository: ChatDBPort,
-    private readonly publisher: EventPublisher,
+    private readonly db: ChatDBPort,
+    private readonly support: ChatApplicationSupport,
   ) {}
 
   async execute({ dto }: CreateChatCommand): Promise<ChatDetailsView> {
-    // const existingUser = await this.userRepository.findByUserName(dto.userName);
-    // if (existingUser) {
-    //   throw new ConflictAppError('User', { userName: dto.userName });
-    // }
-
-    // const user = this.publisher.mergeObjectContext(UserAggregate.create(dto));
-    // const created = await this.userRepository.save(user);
-
-    // user.commit();
-    // return created;
-
-    const participantIds = this.normalizeUserIds([
+    const participantIds = this.support.normalizeUserIds([
       dto.actorUserId,
       ...dto.participantUserIds,
     ]);
-
-    const type = this.toDomainChatType(input.type);
-
-    const directKey =
-      type === 'DIRECT' ? this.createDirectKey(participantIds) : null;
+    const type = this.support.toDomainChatType(dto.type);
 
     if (type === 'DIRECT' && participantIds.length !== 2) {
       throw new ConflictAppError('DirectChat', { participantIds });
     }
 
+    const directKey =
+      type === 'DIRECT' ? this.support.createDirectKey(participantIds) : null;
+
     if (directKey) {
       const existing = await this.db.findChatByDirectKey(directKey);
-      if (existing) return this.buildChatDetails(existing, input.actorUserId);
+      if (existing)
+        return this.support.buildChatDetails(existing, dto.actorUserId);
     }
 
     const chat = ChatAggregate.create({
-      requestId: input.requestId,
+      requestId: dto.requestId,
       type,
-      createdById: input.actorUserId,
-      title: input.title ?? null,
-      avatarUrl: input.avatarUrl ?? null,
+      createdById: dto.actorUserId,
+      title: dto.title ?? null,
+      avatarUrl: dto.avatarUrl ?? null,
       directKey,
     });
 
@@ -59,26 +49,17 @@ export class CreateChatHandler implements ICommandHandler<
 
     for (const userId of participantIds) {
       const member = MemberAggregate.create({
-        requestId: input.requestId,
+        requestId: dto.requestId,
         chatId: savedChat.id,
         userId,
-        role: userId === input.actorUserId ? 'OWNER' : 'MEMBER',
+        role: userId === dto.actorUserId ? 'OWNER' : 'MEMBER',
       });
+
       await this.db.saveMember(member);
-      await this.invalidateUserChats(userId);
+      await this.support.invalidateUserChats(userId);
     }
 
-    await this.cacheChat(savedChat);
-    return this.buildChatDetails(savedChat, input.actorUserId);
-  }
-
-  private normalizeUserIds(userIds: string[]): string[] {
-    const normalized = [
-      ...new Set(userIds.map((id) => id.trim()).filter(Boolean)),
-    ];
-    if (normalized.length === 0) {
-      throw new ConflictAppError('ChatMembers', { reason: 'userIds required' });
-    }
-    return normalized;
+    await this.support.cacheChat(savedChat);
+    return this.support.buildChatDetails(savedChat, dto.actorUserId);
   }
 }

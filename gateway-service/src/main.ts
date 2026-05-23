@@ -3,11 +3,12 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
-import { getCorsConfig, getSwaggerConfig, getValidationPipeConfig } from './core/config';
 import cookieParser from 'cookie-parser';
 import { LoggingInterceptors } from './common/interceptors/loggining.intrceptor';
 import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { HttpErrorFilter } from './common/filters/http-exception.filter';
+import { getCorsConfig, getSwaggerConfig, getValidationPipeConfig } from './common/config';
+import { RedisIoAdapter } from './modules/core/redis/redis-io.adapter';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -24,6 +25,22 @@ async function bootstrap() {
   SwaggerModule.setup('/api/docs', app, getSwaggerConfig(app, config), {
     yamlDocumentUrl: '/openapi.yaml',
     jsonDocumentUrl: 'jsonapi.json',
+  });
+
+  const redisIoAdapter = new RedisIoAdapter(config);
+
+  app.useWebSocketAdapter(redisIoAdapter);
+
+  process.on('SIGINT', async () => {
+    await redisIoAdapter.closeRedisConnections();
+    await app.close();
+    process.exit(0);
+  });
+
+  process.on('SIGTERM', async () => {
+    await redisIoAdapter.closeRedisConnections();
+    await app.close();
+    process.exit(0);
   });
 
   const port = config.getOrThrow<number>('PORT');

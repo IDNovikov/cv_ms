@@ -1,3 +1,4 @@
+import { PrismaPromise } from '@prisma/client/runtime/client';
 import { ChatAggregate, MemberAggregate, MessageAggregate } from '../../domain';
 
 export type ChatListCursor = string | undefined;
@@ -58,4 +59,6 @@ export abstract class ChatDBPort {
   ): Promise<number>;
 
   abstract deleteMember(chatId: string, userId: string): Promise<boolean>;
+
+  abstract transaction(props: PrismaPromise<any[]>[]): Promise<any[]>;
 }

@@ -19,11 +19,20 @@ import { UsersController } from './user/controllers/REST/users.controller';
 import { UserResolver } from './user/controllers/GQL/users.resolver';
 import { FacadePort as UserFacadePort } from './user/providers/facade/facade.port';
 import { FacadeAdapter as UserFacadeAdapter } from './user/providers/facade/facade.adapter';
+import { ChatGrpcClient } from '@/common/config/chatGrpc.config';
+import { ChatController } from './chat/controllers/REST/chat.controller';
+import { ChatWSController } from './chat/controllers/WS/chat-ws.controller';
+import { FacadePort as ChatFacadePort } from './chat/providers/facade/facade.port';
+import { FacadeAdapter as ChatFacadeAdapter } from './chat/providers/facade/facade.adapter';
+import { ChatResolver } from './chat/controllers/GQL/chat.resolver';
+import { WebsocketModule } from '../core/ws/ws.module';
+import { AuthTokenService } from './shared/auth-token.service';
 
 @Module({
   imports: [
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    ClientsModule.registerAsync([AuthGrpcClient, UserGrpcClient]),
+    ClientsModule.registerAsync([AuthGrpcClient, UserGrpcClient, ChatGrpcClient]),
+    WebsocketModule,
   ],
   controllers: [
     AuthController,
@@ -32,11 +41,16 @@ import { FacadeAdapter as UserFacadeAdapter } from './user/providers/facade/faca
     PasswordController,
     AdminController,
     UsersController,
+    ChatController,
   ],
   providers: [
     { provide: AuthFacadePort, useClass: AuthFacadeAdapter },
     { provide: UserFacadePort, useClass: UserFacadeAdapter },
+    { provide: ChatFacadePort, useClass: ChatFacadeAdapter },
     UserResolver,
+    ChatResolver,
+    ChatWSController,
+    AuthTokenService,
     JwtStrategy,
     RefreshJwtStrategy,
     JwtAuthGuard,

@@ -1,97 +1,98 @@
 import { Inject, Injectable, OnModuleInit } from '@nestjs/common';
 import type { ClientGrpc } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import {
-  AUTH_SERVICE_NAME,
-  AuthServiceClient,
-} from '@noildm/contracts/dist/gen/auth';
 import { FacadePort } from './facade.port';
-import { LoginDto } from '../../controllers/DTO/requests/login.dto';
-import { ChangePassDto } from '../../controllers/DTO/requests/changePass.dto';
-import { VerifyDto } from '../../controllers/DTO/requests/verify.dto';
-import { RegistrateDto } from '../../controllers/DTO/requests/registrate.dto';
-import { SessionDataDto } from '../../controllers/DTO/requests/sessionData.dto';
+import {
+  AddMembersRequest,
+  ArchiveChatRequest,
+  CHAT_SERVICE_NAME,
+  ChatDetails,
+  ChatServiceClient,
+  CreateChatRequest,
+  DeleteChatRequest,
+  DeleteMessageRequest,
+  GetChatMembersRequest,
+  GetChatMembersResponse,
+  GetChatRequest,
+  LeaveChatRequest,
+  ListChatsRequest,
+  ListChatsResponse,
+  ListMessagesRequest,
+  ListMessagesResponse,
+  MarkAsReadRequest,
+  Message,
+  MuteChatRequest,
+  RemoveMemberRequest,
+  SendMessageRequest,
+  UnarchiveChatRequest,
+  UnmuteChatRequest,
+  UpdateChatRequest,
+  UpdateMessageRequest,
+} from '@noildm/contracts/dist/gen/chat';
+import { Empty } from '@noildm/contracts/dist/gen/google/protobuf/empty';
 
 @Injectable()
 export class FacadeAdapter implements OnModuleInit, FacadePort {
-  private authService: AuthServiceClient;
+  private chatService: ChatServiceClient;
 
-  public constructor(@Inject(AUTH_SERVICE_NAME) private readonly client: ClientGrpc) {}
+  public constructor(@Inject(CHAT_SERVICE_NAME) private readonly client: ClientGrpc) {}
 
   public onModuleInit() {
-    this.authService = this.client.getService<AuthServiceClient>(AUTH_SERVICE_NAME);
+    this.chatService = this.client.getService<ChatServiceClient>(CHAT_SERVICE_NAME);
   }
 
-  public registrate(dto: RegistrateDto) {
-    return firstValueFrom(this.authService.registrate(dto));
+  public createChat(request: CreateChatRequest): Promise<ChatDetails> {
+    return firstValueFrom(this.chatService.createChat(request));
   }
-
-  public login(dto: LoginDto, token: string, sessionData: SessionDataDto) {
-    return firstValueFrom(
-      this.authService.login({
-        email: dto.email,
-        password: dto.password,
-        token,
-        sessionData,
-      }),
-    );
+  public getChat(request: GetChatRequest): Promise<ChatDetails> {
+    return firstValueFrom(this.chatService.getChat(request));
   }
-
-  public refreshTokens(token: string, sessionData: SessionDataDto) {
-    return firstValueFrom(this.authService.refreshTokens({ token, sessionData }));
+  public updateChat(request: UpdateChatRequest): Promise<ChatDetails> {
+    return firstValueFrom(this.chatService.updateChat(request));
   }
-
-  public logout(token: string, jti: string) {
-    return firstValueFrom(this.authService.logout({ token, jti }));
+  public deleteChat(request: DeleteChatRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.deleteChat(request));
   }
-
-  public verifyEmail(dto: VerifyDto, sessionData: SessionDataDto) {
-    return firstValueFrom(
-      this.authService.verifyEmail({
-        email: dto.email,
-        confirmCode: dto.confirmCode,
-        sessionData,
-      }),
-    );
+  public getListChats(request: ListChatsRequest): Promise<ListChatsResponse> {
+    return firstValueFrom(this.chatService.getListChats(request));
   }
-
-  public getNewVerificationCode(email: string) {
-    return firstValueFrom(this.authService.getNewVerificationCode({ email }));
+  public getChatMembers(request: GetChatMembersRequest): Promise<GetChatMembersResponse> {
+    return firstValueFrom(this.chatService.getChatMembers(request));
   }
-
-  public changePassword(userId: number | string, dto: ChangePassDto) {
-    return firstValueFrom(
-      this.authService.changePassword({
-        userId: String(userId),
-        oldPassword: dto.oldPassword,
-        newPassword: dto.newPassword,
-      }),
-    );
+  public addMembers(request: AddMembersRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.addMembers(request));
   }
-
-  public getTempPass(email: string) {
-    return firstValueFrom(this.authService.getTempPassword({ email }));
+  public removeMember(request: RemoveMemberRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.removeMember(request));
   }
-
-  public getUserSessions(token: string) {
-    return firstValueFrom(this.authService.getUserSessions({ token }));
+  public leaveChat(request: LeaveChatRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.leaveChat(request));
   }
-
-  public logoutSession(token: string, deviceId: string) {
-    return firstValueFrom(this.authService.logoutUserSession({ token, deviceId }));
+  public archiveChat(request: ArchiveChatRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.archiveChat(request));
   }
-
-  public getAllSessionsByAdmin() {
-    return firstValueFrom(this.authService.getAllSessionsByAdmin({}));
+  public unarchiveChat(request: UnarchiveChatRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.unarchiveChat(request));
   }
-
-  public logoutUserSessionsByAdmin(userId: number | string) {
-    return firstValueFrom(
-      this.authService.logoutUserSessionsByAdmin({ userId: String(userId) }),
-    );
+  public muteChat(request: MuteChatRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.muteChat(request));
   }
-
-  public logoutAllSessionsByAdmin() {
-    return firstValueFrom(this.authService.logoutAllSessionsByAdmin({}));
+  public unmuteChat(request: UnmuteChatRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.unmuteChat(request));
+  }
+  public sendMessage(request: SendMessageRequest): Promise<Message> {
+    return firstValueFrom(this.chatService.sendMessage(request));
+  }
+  public updateMessage(request: UpdateMessageRequest): Promise<Message> {
+    return firstValueFrom(this.chatService.updateMessage(request));
+  }
+  public deleteMessage(request: DeleteMessageRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.deleteMessage(request));
+  }
+  public getListMessages(request: ListMessagesRequest): Promise<ListMessagesResponse> {
+    return firstValueFrom(this.chatService.getListMessages(request));
+  }
+  public markAsRead(request: MarkAsReadRequest): Promise<Empty> {
+    return firstValueFrom(this.chatService.markAsRead(request));
   }
 }

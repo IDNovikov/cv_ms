@@ -9,7 +9,7 @@ import { APP_GUARD } from '@nestjs/core';
 import { GqlThrottlerGuard } from './common/guards/gql-throttler.quard';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { gqlErrorHandler } from './common/errors/gql.error';
-import { RedisModule } from './core/redis/redis.module';
+import { RedisModule } from './modules/core/redis/redis.module';
 import { HealthModule } from './modules/health/health.module';
 
 @Module({

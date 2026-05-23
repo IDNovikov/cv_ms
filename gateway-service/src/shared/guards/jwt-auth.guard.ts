@@ -1,11 +1,11 @@
-import { RedisService } from '@/core/redis/redis.service';
-import { ExecutionContext, ForbiddenException, Injectable } from '@nestjs/common';
+import { AuthTokenService } from '@/modules/gateway/shared/auth-token.service';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { GqlExecutionContext } from '@nestjs/graphql';
 import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
-  constructor(private redis: RedisService) {
+  constructor(private readonly authToken: AuthTokenService) {
     super();
   }
   getRequest(context: ExecutionContext) {
@@ -23,12 +23,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') {
     const request = this.getRequest(context);
     const jti = request?.user?.jti;
 
-    if (!jti) throw new ForbiddenException('No provided token');
-
-    const isBlocked = await this.redis.get(`blacklist:${jti}`);
-    if (isBlocked) {
-      throw new ForbiddenException('Token has been revoked');
-    }
+    await this.authToken.assertAccessTokenNotRevoked(jti);
     return true;
   }
 }

@@ -1,60 +1,47 @@
 import {
-  AdminSessionsResponse,
-  LoginResponse,
-  LogoutResponse,
-  RegistrationResponse,
-  TextMessageResponse,
-  TokensResponse,
-  UserSessionsResponse,
-  VerifyEmailResponse,
-} from '@noildm/contracts/dist/gen/auth';
-import { LoginDto } from '../../controllers/DTO/requests/login.dto';
-import { ChangePassDto } from '../../controllers/DTO/requests/changePass.dto';
-import { VerifyDto } from '../../controllers/DTO/requests/verify.dto';
-import { RegistrateDto } from '../../controllers/DTO/requests/registrate.dto';
-import { SessionDataDto } from '../../controllers/DTO/requests/sessionData.dto';
+  AddMembersRequest,
+  ArchiveChatRequest,
+  ChatDetails,
+  DeleteChatRequest,
+  DeleteMessageRequest,
+  GetChatMembersRequest,
+  GetChatMembersResponse,
+  GetChatRequest,
+  LeaveChatRequest,
+  ListChatsRequest,
+  ListChatsResponse,
+  ListMessagesRequest,
+  ListMessagesResponse,
+  MarkAsReadRequest,
+  Message,
+  MuteChatRequest,
+  RemoveMemberRequest,
+  SendMessageRequest,
+  UnarchiveChatRequest,
+  UnmuteChatRequest,
+  UpdateChatRequest,
+  UpdateMessageRequest,
+  CreateChatRequest,
+} from '@noildm/contracts/dist/gen/chat';
+import { Empty } from '@noildm/contracts/dist/gen/google/protobuf/empty';
 
 export abstract class FacadePort {
-  abstract getUserSessions(token: string): Promise<UserSessionsResponse>;
-
-  abstract logoutSession(
-    token: string,
-    deviceId: string,
-  ): Promise<TextMessageResponse>;
-
-  abstract registrate(dto: RegistrateDto): Promise<RegistrationResponse>;
-  abstract verifyEmail(
-    dto: VerifyDto,
-    sessionData: SessionDataDto,
-  ): Promise<VerifyEmailResponse>;
-
-  abstract getNewVerificationCode(email: string): Promise<RegistrationResponse>;
-
-  abstract changePassword(
-    userId: number | string,
-    dto: ChangePassDto,
-  ): Promise<TextMessageResponse>;
-
-  abstract getTempPass(email: string): Promise<TextMessageResponse>;
-
-  abstract login(
-    dto: LoginDto,
-    token: string,
-    sessionData: SessionDataDto,
-  ): Promise<LoginResponse>;
-
-  abstract refreshTokens(
-    token: string,
-    sessionData: SessionDataDto,
-  ): Promise<TokensResponse>;
-
-  abstract logout(token: string, jti: string): Promise<LogoutResponse>;
-
-  abstract getAllSessionsByAdmin(): Promise<AdminSessionsResponse>;
-
-  abstract logoutUserSessionsByAdmin(
-    userId: number | string,
-  ): Promise<TextMessageResponse>;
-
-  abstract logoutAllSessionsByAdmin(): Promise<TextMessageResponse>;
+  abstract createChat(request: CreateChatRequest): Promise<ChatDetails>;
+  abstract getChat(request: GetChatRequest): Promise<ChatDetails>;
+  abstract updateChat(request: UpdateChatRequest): Promise<ChatDetails>;
+  abstract deleteChat(request: DeleteChatRequest): Promise<Empty>;
+  abstract getListChats(request: ListChatsRequest): Promise<ListChatsResponse>;
+  abstract getChatMembers(request: GetChatMembersRequest): Promise<GetChatMembersResponse>;
+  abstract addMembers(request: AddMembersRequest): Promise<Empty>;
+  abstract removeMember(request: RemoveMemberRequest): Promise<Empty>;
+  abstract leaveChat(request: LeaveChatRequest): Promise<Empty>;
+  abstract archiveChat(request: ArchiveChatRequest): Promise<Empty>;
+  abstract unarchiveChat(request: UnarchiveChatRequest): Promise<Empty>;
+  abstract muteChat(request: MuteChatRequest): Promise<Empty>;
+  abstract unmuteChat(request: UnmuteChatRequest): Promise<Empty>;
+  abstract sendMessage(request: SendMessageRequest): Promise<Message>;
+  abstract updateMessage(request: UpdateMessageRequest): Promise<Message>;
+  abstract deleteMessage(request: DeleteMessageRequest): Promise<Empty>;
+  abstract getListMessages(request: ListMessagesRequest): Promise<ListMessagesResponse>;
+  abstract markAsRead(request: MarkAsReadRequest): Promise<Empty>;
 }

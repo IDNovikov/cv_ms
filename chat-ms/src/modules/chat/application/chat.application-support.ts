@@ -129,10 +129,6 @@ export class ChatApplicationSupport {
     return normalized;
   }
 
-  createDirectKey(userIds: string[]): string {
-    return [...userIds].sort().join(':');
-  }
-
   toDomainChatType(type: ChatType | IChat['type']): IChat['type'] {
     const value = String(type);
     if (value === 'DIRECT') return 'DIRECT';
@@ -196,5 +192,8 @@ export class ChatApplicationSupport {
 
   messagesListKey(chatId: string, limit: number, cursor?: string): string {
     return `messages:${chatId}:${limit}:${cursor ?? 'first'}`;
+  }
+  createDirectKey(userIds: string[]): string {
+    return [...userIds].sort().join(':');
   }
 }

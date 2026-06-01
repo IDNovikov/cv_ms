@@ -11,10 +11,8 @@ import {
   MuteMemberInput,
 } from './member.interface';
 
-export class MemberAggregate extends AggregateRoot implements IMember {
-  private constructor(private props: IMember) {
-    super();
-  }
+export class MemberAggregate implements IMember {
+  private constructor(private props: IMember) {}
 
   get id() {
     return this.props.id;

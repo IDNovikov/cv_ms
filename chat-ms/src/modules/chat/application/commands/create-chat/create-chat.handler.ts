@@ -42,7 +42,7 @@ export class CreateChatHandler implements ICommandHandler<
       createdById: dto.actorUserId,
       title: dto.title ?? null,
       avatarUrl: dto.avatarUrl ?? null,
-      directKey,
+      invitedById: dto.participantUserIds,
     });
 
     const savedChat = await this.db.saveChat(chat);

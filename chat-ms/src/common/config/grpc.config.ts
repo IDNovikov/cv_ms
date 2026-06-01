@@ -2,7 +2,7 @@ import { ConfigService } from '@nestjs/config';
 import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { protobufPackage } from '@noildm/contracts/dist/gen/chat';
 
-export function getGrpcConfig(config: ConfigService): MicroserviceOptions {
+export function gatewayGrpcConfig(config: ConfigService): MicroserviceOptions {
   return {
     transport: Transport.GRPC,
     options: {

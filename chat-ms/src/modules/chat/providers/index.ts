@@ -4,3 +4,5 @@ export * from './redis/redis.port';
 export * from './redis/redis.adapter';
 export * from './amqp/amqp.port';
 export * from './amqp/amqp.adapter';
+export * from './user-grpc/user-grpc.adapter';
+export * from './user-grpc/user-grpc.port';

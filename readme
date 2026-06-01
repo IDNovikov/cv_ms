@@ -1,0 +1,54 @@
+Провел статический аудит репозитория. Это не заменяет pentest/скан живого стенда, но по коду и compose уже видны серьезные риски.
+Итог: текущая инфраструктура выглядит пригодной для dev/local, но небезопасной для production без доработок. Главные риски: открытые инфраструктурные порты, слабая изоляция внутренних сервисов, небезопасные cookie/CORS, публичный Swagger и недостаточные лимиты на auth-flow.
+Критично / Высоко
+В docker-compose наружу публикуются PostgreSQL, Redis, RabbitMQ AMQP и RabbitMQ Management:
+docker-compose.yml (line 10)
+Порты 5433, 6379, 5672, 15672 не должны быть доступны извне. Redis/Rabbit/Postgres надо держать только во внутренней Docker-сети, а management-панель RabbitMQ закрывать VPN/allowlist/basic auth с сильным паролем.
+
+Refresh-token cookie выставляется с secure: false:
+cookie.interceptor.ts (line 32)
+В production это риск перехвата cookie без HTTPS. Нужно secure: true, sameSite по модели фронта, и включить trust proxy, если приложение за reverse proxy.
+
+WebSocket принимает любой origin:
+chat-ws.controller.ts (line 36)
+origin: true для socket.io означает, что браузерные подключения с чужих сайтов будут разрешены. Надо использовать тот же allowlist, что и HTTP CORS.
+
+Swagger включен без проверки NODE_ENV не только на gateway, но и во внутренних сервисах:
+main.ts (line 25), main.ts (line 31), main.ts (line 30), main.ts (line 31)
+В production /docs, /openapi.yaml, jsonapi.json лучше выключать или закрывать auth/allowlist.
+
+Внутренние микросервисы поднимают HTTP-серверы и CORS, а не только gRPC:
+auth main.ts (line 44), user main.ts (line 45), chat main.ts (line 52)
+Если эти порты окажутся опубликованы, gateway можно обойти. В production внутренние HTTP-интерфейсы стоит отключить или слушать только private network.
+
+Средне
+Нет env validation почти во всех сервисах. ConfigModule.forRoot без схемы есть в gateway/auth/user/chat:
+gateway app.module.ts (line 18)
+Mail-сервис использует Joi, но схема почти пустая:
+env.validation.ts (line 3)
+Нужно валидировать JWT_SECRET, JWT_REFRESH_SECRET, PASSWORD_PEPPER, REDIS_PASSWORD, AMQP_URI, DATABASE_URL, CORS, NODE_ENV.
+
+Endpoint восстановления пароля публичный и лимит в сервисе фактически 3 мс:
+password.controller.ts (line 26), password.service.ts (line 96), password.service.ts (line 102)
+cooldown = 3, затем Math.floor(cooldown / 1000) дает 0. Это почти отключает защиту от email bombing/password reset abuse.
+
+Верификационный код email логируется:
+registration.service.ts (line 32)
+В production коды подтверждения не должны попадать в логи.
+
+После смены пароля есть TODO на отзыв сессий:
+password.facade.ts (line 18)
+После смены пароля нужно отзывать refresh-сессии и blacklist текущих access JWT.
+
+Что уже хорошо
+Есть whitelist/forbid для DTO validation, JWT access токены имеют jti и blacklist-проверку через Redis, bcrypt используется с pepper, login ограничен @Throttle, refresh-token хранится в Redis как hash, а не plaintext.
+Приоритет действий
+Закрыть наружу Postgres/Redis/RabbitMQ и внутренние сервисы.
+Исправить cookie: secure: true, корректный sameSite, HTTPS/proxy config.
+Ограничить WebSocket CORS allowlist’ом.
+Выключить/закрыть Swagger в production.
+Починить rate limit/cooldown для forgot password и resend verification code.
+Убрать логирование verification code.
+Добавить env validation и минимальную длину секретов 32+ байта.
+После смены пароля отзывать все refresh/access сессии пользователя.
+Git-команды не смог проверить из-за dubious ownership репозитория в sandbox, поэтому не подтверждал, попали ли .env в git. По .gitignore они должны игнорироваться.

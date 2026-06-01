@@ -31,6 +31,10 @@ export class WSService {
     }
   }
 
+  joinUserSocketsTochat(userId: string, chatId: string) {
+    this.server?.in(this.userRoom(userId)).socketsJoin(this.chatRoom(chatId));
+  }
+
   userRoom(userId: string): string {
     return `user:${userId}`;
   }

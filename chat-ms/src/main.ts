@@ -4,8 +4,8 @@ import { Logger, ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { SwaggerModule } from '@nestjs/swagger';
 import {
+  gatewayGrpcConfig,
   getCorsConfig,
-  getGrpcConfig,
   getSwaggerConfig,
   getValidationPipeConfig,
 } from './common/config';
@@ -13,6 +13,7 @@ import { LoggingInterceptors } from './common/interceptors/loggining.intrceptor'
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { GlobalExceptionFilter } from './common/filters/globalException.filter';
 import { ServerError } from './common/errors/server/server.error';
+import { userGrpcConfig } from './common/config/user-grpc.config';
 
 async function bootstrap() {
   const bootstrapLogger = new Logger('Bootstrap');
@@ -32,9 +33,15 @@ async function bootstrap() {
     jsonDocumentUrl: 'jsonapi.json',
   });
 
-  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig(config), {
+  app.connectMicroservice<MicroserviceOptions>(userGrpcConfig(config), {
     inheritAppConfig: true,
   });
+
+  app.connectMicroservice<MicroserviceOptions>(gatewayGrpcConfig(config), {
+    inheritAppConfig: true,
+  });
+
+  app;
   await app.startAllMicroservices();
 
   const port = config.getOrThrow<number>('PORT');

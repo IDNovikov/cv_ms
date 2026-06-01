@@ -5,6 +5,7 @@ import { RedisModule } from './modules/core/redis/redis.module';
 import { PrismaModule } from './modules/core/prisma/prisma.module';
 import { AmqpModule } from './modules/core/amqp/amqp.module';
 import { AuthModule } from './modules/auth/auth.module';
+import { CoreModule } from './modules/core/core.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { AuthModule } from './modules/auth/auth.module';
       isGlobal: true,
     }),
     AuthModule,
+    CoreModule,
   ],
   controllers: [AppController],
   providers: [],

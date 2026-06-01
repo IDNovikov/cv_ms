@@ -30,12 +30,12 @@ import { UserRpcPort } from './providers/user-rpc/user-rpc.port';
 import { UserRpcAdapter } from './providers/user-rpc/user-rpc.adapter';
 import { ClientsModule } from '@nestjs/microservices';
 import { UserGrpcClient } from 'src/common/config/userGrpc.config';
+import { CoreModule } from '../core/core.module';
 @Module({
   imports: [
     ClientsModule.registerAsync([UserGrpcClient]),
     ConfigModule,
-    RedisModule,
-    AmqpModule,
+    CoreModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

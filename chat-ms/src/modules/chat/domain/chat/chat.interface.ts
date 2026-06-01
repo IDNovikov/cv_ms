@@ -17,9 +17,9 @@ export interface CreateChatInput {
   requestId: IChat['requestId'];
   type: IChat['type'];
   createdById: IChat['createdById'];
+  invitedById: IChat['createdById'][];
   title?: IChat['title'];
   avatarUrl?: IChat['avatarUrl'];
-  directKey?: IChat['directKey'];
 }
 
 export interface UpdateChatProfileInput {

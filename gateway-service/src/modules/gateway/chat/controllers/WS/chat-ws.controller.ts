@@ -1,7 +1,4 @@
-import {
-  AccessJwtPayload,
-  AuthTokenService,
-} from '@/modules/gateway/shared/auth-token.service';
+import { AccessJwtPayload, AuthTokenService } from '@/modules/gateway/shared/auth-token.service';
 import { WSService } from '@/modules/core/ws/ws.service';
 import { Logger } from '@nestjs/common';
 import {
@@ -57,9 +54,7 @@ export class ChatWSController implements OnGatewayInit, OnGatewayConnection, OnG
     try {
       const token =
         client.handshake.auth?.token ||
-        this.authToken.extractBearer(
-          client.handshake.headers?.authorization as string | undefined,
-        );
+        this.authToken.extractBearer(client.handshake.headers?.authorization as string | undefined);
 
       if (!token) return this.reject(client, 'Unauthorized');
 
@@ -74,17 +69,22 @@ export class ChatWSController implements OnGatewayInit, OnGatewayConnection, OnG
       client.join(this.socket.userRoom(payload.sub));
       this.logger.log(`Client connected: ${client.id}, userId: ${payload.sub}`);
 
-      const userChats = await this.facade.getListChats({
-        actorUserId: payload.sub,
-        limit: 10,
-        includeArchived: false,
-      });
+      let cursor: string | undefined;
 
-      if (userChats.chats.length) {
-        userChats.chats.forEach((item) => {
-          if (item.chat?.id) client.join(this.socket.chatRoom(item.chat.id));
+      do {
+        const userChats = await this.facade.getListChats({
+          actorUserId: payload.sub,
+          limit: 10,
+          cursor,
+          includeArchived: false,
         });
-      }
+
+        for (const item of userChats.chats) {
+          if (item.chat?.id) client.join(this.socket.chatRoom(item.chat.id));
+        }
+        cursor = userChats.nextCursor;
+      } while (cursor);
+
       return;
     } catch (err) {
       this.logger.error(`Connection error: ${this.getErrorMessage(err)}`);

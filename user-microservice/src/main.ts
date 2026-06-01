@@ -32,7 +32,7 @@ async function bootstrap() {
     jsonDocumentUrl: 'jsonapi.json',
   });
 
-  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig(), {
+  app.connectMicroservice<MicroserviceOptions>(getGrpcConfig(config), {
     inheritAppConfig: true,
   });
   await app.startAllMicroservices();

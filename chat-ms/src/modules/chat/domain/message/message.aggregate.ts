@@ -8,10 +8,8 @@ import {
 import { v7 } from 'uuid';
 import { DomainValidationError } from 'src/common/errors';
 
-export class MessageAggregate extends AggregateRoot implements IMessage {
-  private constructor(private props: IMessage) {
-    super();
-  }
+export class MessageAggregate implements IMessage {
+  private constructor(private props: IMessage) {}
 
   get id() {
     return this.props.id;

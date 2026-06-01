@@ -1,4 +1,3 @@
-import { AggregateRoot } from '@nestjs/cqrs';
 import { ChatType } from '@noildm/contracts/dist/gen/chat';
 import { DomainValidationError } from 'src/common/errors';
 import { v7 } from 'uuid';
@@ -9,8 +8,13 @@ import {
   TouchLastMessageInput,
   UpdateChatProfileInput,
 } from './chat.interface';
+import { AggregateRoot } from '../common/aggregate-root';
+import { ChatCreatedDomainEvent } from './events/chat-created.event';
 
-export class ChatAggregate extends AggregateRoot implements IChat {
+export class ChatAggregate
+  extends AggregateRoot<ChatCreatedDomainEvent>
+  implements IChat
+{
   private constructor(private props: IChat) {
     super();
   }
@@ -67,16 +71,21 @@ export class ChatAggregate extends AggregateRoot implements IChat {
     const now = new Date();
     const type = input.type;
 
+    const directKey = ChatAggregate.createDirectKey([
+      input.createdById,
+      ...input.invitedById,
+    ]);
+
     if (
       type === ChatType.DIRECT &&
-      !ChatAggregate.normalizeNullable(input.directKey)
+      !ChatAggregate.normalizeNullable(directKey)
     ) {
       throw new DomainValidationError('directKey is required for direct chat', {
         field: 'directKey',
       });
     }
 
-    return new ChatAggregate({
+    const chat = new ChatAggregate({
       id: v7(),
       requestId: ChatAggregate.normalizeRequired(input.requestId, 'requestId'),
       type,
@@ -84,7 +93,7 @@ export class ChatAggregate extends AggregateRoot implements IChat {
       avatarUrl: ChatAggregate.normalizeNullable(input.avatarUrl),
       directKey:
         type === ChatType.DIRECT
-          ? ChatAggregate.normalizeRequired(input.directKey, 'directKey')
+          ? ChatAggregate.normalizeRequired(directKey, 'directKey')
           : null,
       createdById: ChatAggregate.normalizeRequired(
         input.createdById,
@@ -96,6 +105,15 @@ export class ChatAggregate extends AggregateRoot implements IChat {
       createdAt: now,
       updatedAt: now,
     });
+
+    chat.addEvent({
+      chatId: chat.id,
+      type: chat.type,
+      createdAt: chat.createdAt,
+      createdById: chat.createdById,
+      invitedById: input.invitedById,
+    });
+    return chat;
   }
 
   static restore(props: IChat): ChatAggregate {
@@ -181,5 +199,9 @@ export class ChatAggregate extends AggregateRoot implements IChat {
 
     const normalized = value.trim();
     return normalized.length ? normalized : null;
+  }
+
+  private static createDirectKey(userIds: string[]): string {
+    return [...userIds].sort().join(':');
   }
 }

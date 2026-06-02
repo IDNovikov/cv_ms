@@ -5,6 +5,11 @@ import { ChatType } from '@noildm/contracts/dist/gen/chat';
 
 @InputType()
 export class CreateChatDto {
+  @Field(() => String)
+  @ApiProperty({ type: String, example: '018f2b9d-1a2b-7000-8000-000000000002' })
+  @IsString()
+  requestId!: string;
+
   @Field(() => ChatType)
   @ApiProperty({ enum: ChatType, example: ChatType.DIRECT })
   @IsEnum(ChatType)

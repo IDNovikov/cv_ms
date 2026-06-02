@@ -43,7 +43,7 @@ export class ChatController {
   @UseSwagger(...ChatSwagger.CreateChat)
   async createChat(@User() user: AuthUser, @Body() dto: CreateChatDto) {
     return this.facade.createChat({
-      requestId: randomUUID(),
+      requestId: dto.requestId,
       actorUserId: user.sub,
       type: dto.type,
       participantUserIds: dto.participantUserIds,
@@ -197,7 +197,7 @@ export class ChatController {
     @Body() dto: SendMessageDto,
   ) {
     return this.facade.sendMessage({
-      requestId: randomUUID(),
+      requestId: dto.requestId,
       chatId,
       authorId: user.sub,
       kind: dto.kind ?? MessageKind.TEXT,

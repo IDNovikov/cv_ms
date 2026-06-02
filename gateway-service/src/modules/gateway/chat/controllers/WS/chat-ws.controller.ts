@@ -17,6 +17,7 @@ import { Server, Socket } from 'socket.io';
 import { SendMessageDto } from '../REST/DTO/requests/send-message.dto';
 import { UpdateMessageDto } from '../REST/DTO/requests/update-message.dto';
 import { FacadePort } from '../../providers/facade/facade.port';
+import { CreateChatDto } from '../REST/DTO';
 
 type SendMessageWsPayload = SendMessageDto & {
   chatId: string;
@@ -27,6 +28,7 @@ type UpdateMessageWsPayload = UpdateMessageDto & {
   messageId?: string;
 };
 
+type CreateChatWSPayload = CreateChatDto;
 @WebSocketGateway({
   namespace: 'chat',
   cors: {
@@ -143,6 +145,33 @@ export class ChatWSController implements OnGatewayInit, OnGatewayConnection, OnG
       this.logger.error(`Failed to edit message: ${this.getErrorMessage(err)}`);
       throw new WsException(`Edit failed: ${this.getErrorMessage(err)}`);
     }
+  }
+
+  @SubscribeMessage('chat.create')
+  async handleCreate(@ConnectedSocket() client: Socket, @MessageBody() body: CreateChatWSPayload) {
+    const userId = client.data.userId;
+
+    if (!userId) throw new WsException('Unauthorized');
+
+    const chat = await this.facade.createChat({
+      actorUserId: userId,
+      participantUserIds: body.participantUserIds,
+      type: body.type,
+      title: body.title,
+      avatarUrl: body.avatarUrl,
+      requestId: body.requestId,
+    });
+
+    const chatId = chat.chat?.id;
+
+    if (chatId) {
+      const participantIds = chat.participants.map((p) => p.userId);
+      for (const userId of participantIds) {
+        this.socket.joinUserSocketsTochat(userId, chatId);
+        this.socket.emitToUser(userId, 'chat.created', chat);
+      }
+    }
+    return chat;
   }
 
   emitToChat(chatId: string, event: string, payload: unknown) {

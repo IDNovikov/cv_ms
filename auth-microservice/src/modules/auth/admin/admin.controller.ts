@@ -17,4 +17,8 @@ export class AdminController {
   async logoutAllSessionsByAdmin() {
     return this.facade.logoutAllSessionsByAdmin();
   }
+
+  async getAuthDataByUserId(id: string) {
+    return this.facade.getAuthDataByUserId(id);
+  }
 }

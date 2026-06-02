@@ -1,4 +1,4 @@
-import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
+import { CommandHandler, EventBus, ICommandHandler } from '@nestjs/cqrs';
 import { ChatDBPort } from 'src/modules/chat/providers';
 import { ConflictAppError } from 'src/common/errors';
 import { ChatAggregate, MemberAggregate } from 'src/modules/chat/domain';
@@ -14,6 +14,7 @@ export class CreateChatHandler implements ICommandHandler<
   constructor(
     private readonly db: ChatDBPort,
     private readonly support: ChatApplicationSupport,
+    private readonly eventBus: EventBus,
   ) {}
 
   async execute({ dto }: CreateChatCommand): Promise<ChatDetailsView> {
@@ -60,6 +61,7 @@ export class CreateChatHandler implements ICommandHandler<
     }
 
     await this.support.cacheChat(savedChat);
+    this.eventBus.publishAll(chat.pullEvents());
     return this.support.buildChatDetails(savedChat, dto.actorUserId);
   }
 }

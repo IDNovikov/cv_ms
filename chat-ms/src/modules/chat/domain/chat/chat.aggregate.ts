@@ -106,13 +106,15 @@ export class ChatAggregate
       updatedAt: now,
     });
 
-    chat.addEvent({
-      chatId: chat.id,
-      type: chat.type,
-      createdAt: chat.createdAt,
-      createdById: chat.createdById,
-      invitedById: input.invitedById,
-    });
+    chat.addEvent(
+      new ChatCreatedDomainEvent(
+        chat.id,
+        chat.type,
+        chat.createdById,
+        input.invitedById,
+        chat.createdAt,
+      ),
+    );
     return chat;
   }
 

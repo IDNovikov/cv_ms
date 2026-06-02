@@ -22,6 +22,8 @@ import {
   VerifyEmailRequest,
   VerifyEmailResponse,
   AdminSessionsResponse,
+  AuthDataResponse,
+  GetAuthDataByUserIdRequest,
 } from '@noildm/contracts/dist/gen/auth';
 import { Empty } from '@noildm/contracts/dist/gen/google/protobuf/empty';
 import { AdminFacade } from '../../admin/admin.facade';
@@ -29,6 +31,8 @@ import { AuthFacade } from '../../auth/auth.facade';
 import { PasswordFacade } from '../../password/password.facade';
 import { RegistrationFacade } from '../../registration/registration.facade';
 import { SessionFacade } from '../../session/session.facade';
+import { Observable } from 'rxjs';
+import { toGrpcAuthMapper } from '../mappers/auth-data.mapper';
 
 @Controller()
 @AuthServiceControllerMethods()
@@ -197,6 +201,14 @@ export class AuthGrpcController implements AuthServiceController {
     console.log(request);
 
     return this.adminFacade.logoutUserSessionsByAdmin(request.userId);
+  }
+
+  async getAuthDataByUserId(
+    request: GetAuthDataByUserIdRequest,
+  ): Promise<AuthDataResponse> {
+    return toGrpcAuthMapper(
+      await this.adminFacade.getAuthDataByUserId(request.userId),
+    );
   }
 
   async logoutAllSessionsByAdmin(_: Empty): Promise<TextMessageResponse> {

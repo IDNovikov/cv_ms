@@ -23,4 +23,5 @@ export abstract class AuthDBPort {
     dto: Paginated<T>,
   ): Promise<{ data: AuthAggregate[]; total: number }>;
   abstract findByEmail(email: string): Promise<AuthAggregate | null>;
+  abstract findByUserId(id: string): Promise<AuthAggregate | null>;
 }

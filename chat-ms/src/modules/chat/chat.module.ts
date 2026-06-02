@@ -25,8 +25,17 @@ import { ListChatsHandler } from './application/queries/list-chats/list-chats.ha
 import { ListMessagesHandler } from './application/queries/list-messages/list-messages.handler';
 import { RabbitServiceAdapter } from './providers/amqp/amqp.adapter';
 import { ChatDBAdapter } from './providers/prisma/prisma.adapter';
-import { ChatDBPort, RabbitServicePort, RedisServicePort } from './providers';
+import {
+  AuthGrpcPort,
+  ChatDBPort,
+  RabbitServicePort,
+  RedisServicePort,
+} from './providers';
 import { RedisServiceAdapter } from './providers/redis/redis.adapter';
+import { ClientsModule } from '@nestjs/microservices';
+import { AuthGrpcClient } from 'src/common/config/auth-grpc.client';
+import { FacadeAdapter as AuthGrpcAdapter } from './providers/auth-grpc/auth-grpc.adapter';
+import { UserCreatedSendMailHandler } from './application/events/create-chat/create-chat.handler';
 
 const commandHandlers = [
   AddMembersHandler,
@@ -52,17 +61,27 @@ const queryHandlers = [
   ListMessagesHandler,
 ];
 
+const eventHandlers = [UserCreatedSendMailHandler];
+
 @Module({
-  imports: [CqrsModule, PrismaModule, RedisModule, AmqpModule],
+  imports: [
+    CqrsModule,
+    PrismaModule,
+    RedisModule,
+    AmqpModule,
+    ClientsModule.registerAsync([AuthGrpcClient]),
+  ],
   controllers: [ChatGrpcController],
   providers: [
     ChatFacade,
     ChatApplicationSupport,
     ...commandHandlers,
     ...queryHandlers,
+    ...eventHandlers,
     { provide: ChatDBPort, useClass: ChatDBAdapter },
     { provide: RabbitServicePort, useClass: RabbitServiceAdapter },
     { provide: RedisServicePort, useClass: RedisServiceAdapter },
+    { provide: AuthGrpcPort, useClass: AuthGrpcAdapter },
   ],
 })
 export class ChatModule {}

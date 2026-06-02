@@ -42,6 +42,11 @@ export class ActorDBAdapter extends AuthDBPort {
     return row ? AuthAggregate.restore(row) : null;
   }
 
+  async findByUserId(id: string): Promise<AuthAggregate | null> {
+    const row = await this.prisma.auth.findUnique({ where: { userId: id } });
+    return row ? AuthAggregate.restore(row) : null;
+  }
+
   async findAll<TSort extends string>(
     dto: Paginated<TSort>,
   ): Promise<{ data: AuthAggregate[]; total: number }> {

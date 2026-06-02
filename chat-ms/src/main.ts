@@ -13,7 +13,6 @@ import { LoggingInterceptors } from './common/interceptors/loggining.intrceptor'
 import { MicroserviceOptions } from '@nestjs/microservices';
 import { GlobalExceptionFilter } from './common/filters/globalException.filter';
 import { ServerError } from './common/errors/server/server.error';
-import { userGrpcConfig } from './common/config/user-grpc.config';
 
 async function bootstrap() {
   const bootstrapLogger = new Logger('Bootstrap');
@@ -31,10 +30,6 @@ async function bootstrap() {
   SwaggerModule.setup('/docs', app, getSwaggerConfig(app, config), {
     yamlDocumentUrl: '/openapi.yaml',
     jsonDocumentUrl: 'jsonapi.json',
-  });
-
-  app.connectMicroservice<MicroserviceOptions>(userGrpcConfig(config), {
-    inheritAppConfig: true,
   });
 
   app.connectMicroservice<MicroserviceOptions>(gatewayGrpcConfig(config), {

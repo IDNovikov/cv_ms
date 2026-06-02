@@ -1,9 +1,14 @@
-import { ForbiddenException, Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { parsedData, SessionsService } from '../session/session.service';
+import { AuthAggregate } from '../domain/auth.aggregate';
+import { AuthDBPort } from '../providers/prisma/prisma.port';
 
 @Injectable()
 export class AdminFacade {
-  constructor(private readonly sessionsService: SessionsService) {}
+  constructor(
+    private readonly sessionsService: SessionsService,
+    private readonly auth: AuthDBPort,
+  ) {}
 
   async getAllSessionsByAdmin(): Promise<{ data: parsedData[] }> {
     const sessions = await this.sessionsService.getSessions();
@@ -19,7 +24,7 @@ export class AdminFacade {
   ): Promise<{ message: string }> {
     const sessions = await this.sessionsService.getSessions(userId);
 
-    Promise.all([
+    await Promise.all(
       sessions.map(async (val) => {
         const { deviceId } = this.sessionsService.keyParser(val.key);
         return this.sessionsService.closeSession(
@@ -28,7 +33,7 @@ export class AdminFacade {
           deviceId,
         );
       }),
-    ]);
+    );
 
     return { message: `Session of ${userId} is closed` };
   }
@@ -36,7 +41,7 @@ export class AdminFacade {
   async logoutAllSessionsByAdmin() {
     const sessions = await this.sessionsService.getSessions();
 
-    Promise.all([
+    await Promise.all(
       sessions.map(async (val) => {
         const { deviceId, userId } = this.sessionsService.keyParser(val.key);
         return this.sessionsService.closeSession(
@@ -45,8 +50,14 @@ export class AdminFacade {
           deviceId,
         );
       }),
-    ]);
+    );
 
     return { message: `All sessions is closed` };
+  }
+
+  async getAuthDataByUserId(id: string): Promise<AuthAggregate> {
+    const auth = await this.auth.findByUserId(id);
+    if (!auth) throw new NotFoundException('Auth data not found');
+    return auth;
   }
 }

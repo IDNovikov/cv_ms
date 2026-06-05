@@ -18,6 +18,7 @@ export class CreateChatHandler implements ICommandHandler<
   ) {}
 
   async execute({ dto }: CreateChatCommand): Promise<ChatDetailsView> {
+    console.log(dto);
     const participantIds = this.support.normalizeUserIds([
       dto.actorUserId,
       ...dto.participantUserIds,
@@ -33,8 +34,7 @@ export class CreateChatHandler implements ICommandHandler<
 
     if (directKey) {
       const existing = await this.db.findChatByDirectKey(directKey);
-      if (existing)
-        return this.support.buildChatDetails(existing, dto.actorUserId);
+      if (existing) throw new ConflictAppError('Direct chat');
     }
 
     const chat = ChatAggregate.create({

@@ -2,9 +2,12 @@ import { Field, InputType, Int } from '@nestjs/graphql';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform, Type } from 'class-transformer';
 import { IsBoolean, IsInt, IsOptional, IsString, Max, Min } from 'class-validator';
+import { ListChatsRequest } from '@noildm/contracts/dist/gen/chat';
 
 @InputType()
-export class ListChatsDto {
+export class ListChatsDto
+  implements Partial<Pick<ListChatsRequest, 'limit' | 'cursor' | 'includeArchived'>>
+{
   @Field(() => Int, { nullable: true })
   @ApiPropertyOptional({ default: 20, minimum: 1, maximum: 100 })
   @IsOptional()

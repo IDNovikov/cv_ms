@@ -10,13 +10,13 @@ export class RabbitServiceAdapter extends RabbitServicePort {
   }
 
   async AmqpSendMail(payload: SendMailRequest): Promise<void> {
-    console.log(payload);
     const { queue } = SendMailContract;
     try {
       await this.amqp.amqp.publish(
         queue.exchange.name,
         queue.routingKey,
         payload,
+        { persistent: true },
       );
     } catch (error) {
       throw new DependencyUnavailableError(

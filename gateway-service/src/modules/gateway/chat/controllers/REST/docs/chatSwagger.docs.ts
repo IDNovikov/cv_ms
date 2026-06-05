@@ -14,6 +14,7 @@ import {
 import {
   AddMembersDto,
   CreateChatDto,
+  GetChatMembersDto,
   ListChatsDto,
   ListMessagesDto,
   MarkAsReadDto,
@@ -23,6 +24,9 @@ import {
   UpdateMessageDto,
 } from '../DTO';
 import { ChatType, MessageKind } from '@noildm/contracts/dist/gen/chat';
+
+const timestampExample = { seconds: 1778061600, nanos: 0 };
+const createdTimestampExample = { seconds: 1778061000, nanos: 0 };
 
 const success = (data: unknown) => ({
   success: true,
@@ -61,21 +65,21 @@ const chatExample = {
     avatarUrl: 'https://cdn.example.com/chat.png',
     createdById: '018f2b9d-1a2b-7000-8000-000000000100',
     lastMessageId: '018f2b9d-1a2b-7000-8000-000000000010',
-    lastMessageAt: { seconds: '1778061600', nanos: 0 },
-    createdAt: { seconds: '1778061000', nanos: 0 },
-    updatedAt: { seconds: '1778061600', nanos: 0 },
+    lastMessageAt: timestampExample,
+    createdAt: createdTimestampExample,
+    updatedAt: timestampExample,
   },
   myState: {
     role: 'OWNER',
-    joinedAt: { seconds: '1778061000', nanos: 0 },
+    joinedAt: createdTimestampExample,
     lastReadMessageId: '018f2b9d-1a2b-7000-8000-000000000010',
-    lastReadAt: { seconds: '1778061600', nanos: 0 },
+    lastReadAt: timestampExample,
   },
   participants: [
     {
       userId: '018f2b9d-1a2b-7000-8000-000000000100',
       role: 'OWNER',
-      joinedAt: { seconds: '1778061000', nanos: 0 },
+      joinedAt: createdTimestampExample,
     },
   ],
   lastMessage: {
@@ -85,10 +89,46 @@ const chatExample = {
     kind: MessageKind.TEXT,
     text: 'Hello',
     isEdited: false,
-    createdAt: { seconds: '1778061600', nanos: 0 },
-    updatedAt: { seconds: '1778061600', nanos: 0 },
+    createdAt: timestampExample,
+    updatedAt: timestampExample,
   },
   unreadCount: 0,
+};
+
+const createChatBodyExample = {
+  requestId: '018f2b9d-1a2b-7000-8000-000000000201',
+  type: ChatType.DIRECT,
+  participantUserIds: ['018f2b9d-1a2b-7000-8000-000000000101'],
+  title: 'Project chat',
+  avatarUrl: 'https://cdn.example.com/chat.png',
+};
+
+const addMembersBodyExample = {
+  userIds: ['018f2b9d-1a2b-7000-8000-000000000102'],
+};
+
+const updateChatBodyExample = {
+  title: 'Updated chat title',
+  avatarUrl: 'https://cdn.example.com/chat-updated.png',
+};
+
+const muteChatBodyExample = {
+  mutedUntil: timestampExample,
+};
+
+const sendMessageBodyExample = {
+  requestId: '018f2b9d-1a2b-7000-8000-000000000202',
+  kind: MessageKind.TEXT,
+  text: 'Hello',
+  replyToId: '018f2b9d-1a2b-7000-8000-000000000010',
+};
+
+const updateMessageBodyExample = {
+  text: 'Edited message',
+};
+
+const markAsReadBodyExample = {
+  lastReadMessageId: '018f2b9d-1a2b-7000-8000-000000000010',
 };
 
 const commonErrors = [
@@ -130,7 +170,7 @@ export class ChatSwagger {
   static CreateChat = [
     ApiOperation({ summary: 'Create chat' }),
     ApiBearerAuth('access_token'),
-    ApiBody({ type: CreateChatDto }),
+    ApiBody({ type: CreateChatDto, examples: { contract: { value: createChatBodyExample } } }),
     ApiOkResponse({ schema: { example: success(chatExample) } }),
     ...commonErrors,
   ];
@@ -147,7 +187,7 @@ export class ChatSwagger {
     ApiOperation({ summary: 'Update chat profile' }),
     ApiBearerAuth('access_token'),
     ApiParam({ name: 'chatId', example: '018f2b9d-1a2b-7000-8000-000000000001' }),
-    ApiBody({ type: UpdateChatDto }),
+    ApiBody({ type: UpdateChatDto, examples: { contract: { value: updateChatBodyExample } } }),
     ApiOkResponse({ schema: { example: success(chatExample) } }),
     ...commonErrors,
   ];
@@ -179,7 +219,7 @@ export class ChatSwagger {
     ApiOperation({ summary: 'Get chat members' }),
     ApiBearerAuth('access_token'),
     ApiParam({ name: 'chatId', example: '018f2b9d-1a2b-7000-8000-000000000001' }),
-    ApiQuery({ type: ListMessagesDto, required: false }),
+    ApiQuery({ type: GetChatMembersDto, required: false }),
     ApiOkResponse({
       schema: {
         example: success({
@@ -195,7 +235,7 @@ export class ChatSwagger {
     ApiOperation({ summary: 'Add members to chat' }),
     ApiBearerAuth('access_token'),
     ApiParam({ name: 'chatId', example: '018f2b9d-1a2b-7000-8000-000000000001' }),
-    ApiBody({ type: AddMembersDto }),
+    ApiBody({ type: AddMembersDto, examples: { contract: { value: addMembersBodyExample } } }),
     ApiOkResponse({ schema: { example: success({}) } }),
     ...commonErrors,
   ];
@@ -237,7 +277,7 @@ export class ChatSwagger {
     ApiOperation({ summary: 'Mute chat for current user' }),
     ApiBearerAuth('access_token'),
     ApiParam({ name: 'chatId', example: '018f2b9d-1a2b-7000-8000-000000000001' }),
-    ApiBody({ type: MuteChatDto }),
+    ApiBody({ type: MuteChatDto, examples: { contract: { value: muteChatBodyExample } } }),
     ApiOkResponse({ schema: { example: success({}) } }),
     ...commonErrors,
   ];
@@ -254,7 +294,7 @@ export class ChatSwagger {
     ApiOperation({ summary: 'Send message' }),
     ApiBearerAuth('access_token'),
     ApiParam({ name: 'chatId', example: '018f2b9d-1a2b-7000-8000-000000000001' }),
-    ApiBody({ type: SendMessageDto }),
+    ApiBody({ type: SendMessageDto, examples: { contract: { value: sendMessageBodyExample } } }),
     ApiOkResponse({ schema: { example: success(chatExample.lastMessage) } }),
     ...commonErrors,
   ];
@@ -263,7 +303,7 @@ export class ChatSwagger {
     ApiOperation({ summary: 'Update message' }),
     ApiBearerAuth('access_token'),
     ApiParam({ name: 'messageId', example: '018f2b9d-1a2b-7000-8000-000000000010' }),
-    ApiBody({ type: UpdateMessageDto }),
+    ApiBody({ type: UpdateMessageDto, examples: { contract: { value: updateMessageBodyExample } } }),
     ApiOkResponse({
       schema: {
         example: success({ ...chatExample.lastMessage, text: 'Edited message', isEdited: true }),
@@ -300,7 +340,7 @@ export class ChatSwagger {
     ApiOperation({ summary: 'Mark chat as read' }),
     ApiBearerAuth('access_token'),
     ApiParam({ name: 'chatId', example: '018f2b9d-1a2b-7000-8000-000000000001' }),
-    ApiBody({ type: MarkAsReadDto }),
+    ApiBody({ type: MarkAsReadDto, examples: { contract: { value: markAsReadBodyExample } } }),
     ApiOkResponse({ schema: { example: success({}) } }),
     ...commonErrors,
   ];

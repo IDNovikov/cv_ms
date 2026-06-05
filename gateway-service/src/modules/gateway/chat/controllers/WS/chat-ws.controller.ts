@@ -12,7 +12,6 @@ import {
   WebSocketServer,
   WsException,
 } from '@nestjs/websockets';
-import { MessageKind } from '@noildm/contracts/dist/gen/chat';
 import { Server, Socket } from 'socket.io';
 import { SendMessageDto } from '../REST/DTO/requests/send-message.dto';
 import { UpdateMessageDto } from '../REST/DTO/requests/update-message.dto';
@@ -111,7 +110,7 @@ export class ChatWSController implements OnGatewayInit, OnGatewayConnection, OnG
         requestId: body.requestId,
         chatId: body.chatId,
         authorId: userId,
-        kind: body.kind ?? MessageKind.TEXT,
+        kind: body.kind,
         text: body.text,
         replyToId: body.replyToId,
       });

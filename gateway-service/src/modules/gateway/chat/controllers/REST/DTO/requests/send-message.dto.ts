@@ -1,10 +1,12 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsEnum, IsOptional, IsString, IsUUID } from 'class-validator';
-import { MessageKind } from '@noildm/contracts/dist/gen/chat';
+import { IsEnum, IsOptional, IsString } from 'class-validator';
+import { MessageKind, SendMessageRequest } from '@noildm/contracts/dist/gen/chat';
 
 @InputType()
-export class SendMessageDto {
+export class SendMessageDto
+  implements Pick<SendMessageRequest, 'requestId' | 'kind' | 'text' | 'replyToId'>
+{
   @Field(() => String)
   @ApiProperty({ type: String, example: '018f2b9d-1a2b-7000-8000-000000000002' })
   @IsString()
@@ -15,15 +17,14 @@ export class SendMessageDto {
   @IsString()
   text!: string;
 
-  @Field(() => MessageKind, { nullable: true })
-  @ApiPropertyOptional({ enum: MessageKind, default: MessageKind.TEXT })
-  @IsOptional()
+  @Field(() => MessageKind)
+  @ApiProperty({ enum: MessageKind, example: MessageKind.TEXT })
   @IsEnum(MessageKind)
-  kind?: MessageKind = MessageKind.TEXT;
+  kind!: MessageKind;
 
   @Field({ nullable: true })
   @ApiPropertyOptional({ example: '018f2b9d-1a2b-7000-8000-000000000010' })
   @IsOptional()
-  @IsUUID()
+  @IsString()
   replyToId?: string;
 }

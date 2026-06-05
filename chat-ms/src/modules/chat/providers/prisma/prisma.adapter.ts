@@ -165,13 +165,14 @@ export class ChatDBAdapter extends ChatDBPort {
   }
 
   async listChats(params: ListChatsParams): Promise<ListResult<ChatAggregate>> {
+    console.log(params);
     try {
       const limit = this.normalizeLimit(params.limit);
       const rows = await this.prisma.chatMember.findMany({
         where: {
           userId: params.actorUserId,
           leftAt: null,
-          ...(params.includeArchived ? {} : { archivedAt: null }),
+          //...(params.includeArchived ? {} : { archivedAt: null }),
           chat: {
             deletedAt: null,
             ...(params.cursor
@@ -184,6 +185,7 @@ export class ChatDBAdapter extends ChatDBPort {
         take: limit + 1,
       });
 
+      console.log(rows);
       const visibleRows = rows.slice(0, limit);
       const items = visibleRows.map((row) =>
         ChatAggregate.restore(this.mapChat(row.chat)),

@@ -19,12 +19,13 @@ export const amqpConfig = (configService: ConfigService): RabbitMQConfig => {
     queues: [
       {
         name: SendMailContract.queue.queue,
-        options: { durable: true },
+        options: SendMailContract.queue.queueOptions,
       },
     ],
-    connectionInitOptions: { wait: true, timeout: 20000 },
+    connectionInitOptions: { wait: false },
     enableControllerDiscovery: true,
-    defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.NACK,
+    defaultSubscribeErrorBehavior: MessageHandlerErrorBehavior.REQUEUE,
+    prefetchCount: 5,
     connectionManagerOptions: {
       heartbeatIntervalInSeconds: 15,
       reconnectTimeInSeconds: 5,

@@ -1,10 +1,13 @@
 import { Field, InputType } from '@nestjs/graphql';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { ArrayNotEmpty, IsArray, IsEnum, IsOptional, IsString } from 'class-validator';
-import { ChatType } from '@noildm/contracts/dist/gen/chat';
+import { ChatType, CreateChatRequest } from '@noildm/contracts/dist/gen/chat';
 
 @InputType()
-export class CreateChatDto {
+export class CreateChatDto implements Pick<
+  CreateChatRequest,
+  'requestId' | 'type' | 'participantUserIds' | 'title' | 'avatarUrl'
+> {
   @Field(() => String)
   @ApiProperty({ type: String, example: '018f2b9d-1a2b-7000-8000-000000000002' })
   @IsString()

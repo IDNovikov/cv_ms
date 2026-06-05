@@ -10,7 +10,6 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { randomUUID } from 'crypto';
 import { User } from '@/common/decorators/userRefreshToken.decorator';
 import { UseSwagger } from '@/common/decorators/swagger.decorator';
 import { JwtAuthGuard } from '@/shared/guards/jwt-auth.guard';
@@ -28,8 +27,6 @@ import {
   UpdateMessageDto,
 } from './DTO';
 import { ChatSwagger } from './docs/chatSwagger.docs';
-import { Timestamp } from '@noildm/contracts/dist/gen/google/protobuf/timestamp';
-import { MessageKind } from '@noildm/contracts/dist/gen/chat';
 
 type AuthUser = { sub: string };
 
@@ -42,6 +39,7 @@ export class ChatController {
   @Post()
   @UseSwagger(...ChatSwagger.CreateChat)
   async createChat(@User() user: AuthUser, @Body() dto: CreateChatDto) {
+    console.log(user);
     return this.facade.createChat({
       requestId: dto.requestId,
       actorUserId: user.sub,
@@ -55,9 +53,11 @@ export class ChatController {
   @Get()
   @UseSwagger(...ChatSwagger.ListChats)
   async getChats(@User() user: AuthUser, @Query() query: ListChatsDto) {
+    console.log(user);
+
     return this.facade.getListChats({
       actorUserId: user.sub,
-      limit: query.limit ?? 20,
+      limit: query.limit ?? 10,
       cursor: query.cursor,
       includeArchived: query.includeArchived ?? false,
     });
@@ -176,7 +176,7 @@ export class ChatController {
     return this.facade.muteChat({
       chatId,
       actorUserId: user.sub,
-      mutedUntil: this.toTimestamp(dto.mutedUntil),
+      mutedUntil: dto.mutedUntil,
     });
   }
 
@@ -200,7 +200,7 @@ export class ChatController {
       requestId: dto.requestId,
       chatId,
       authorId: user.sub,
-      kind: dto.kind ?? MessageKind.TEXT,
+      kind: dto.kind,
       text: dto.text,
       replyToId: dto.replyToId,
     });
@@ -256,13 +256,5 @@ export class ChatController {
       actorUserId: user.sub,
       lastReadMessageId: dto.lastReadMessageId,
     });
-  }
-
-  private toTimestamp(value: string): Timestamp {
-    const ms = new Date(value).getTime();
-    return {
-      seconds: Math.trunc(ms / 1000),
-      nanos: (ms % 1000) * 1_000_000,
-    };
   }
 }

@@ -16,6 +16,7 @@ export class RabbitServiceAdapter extends RabbitServicePort {
         queue.exchange.name,
         queue.routingKey,
         payload,
+        { persistent: true },
       );
     } catch (error) {
       throw new DependencyUnavailableError(

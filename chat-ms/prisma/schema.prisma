@@ -7,22 +7,29 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+  schemas  = ["chat"]
 }
 
 enum ChatType {
   DIRECT
   GROUP
+
+  @@schema("chat")
 }
 
 enum ChatMemberRole {
   OWNER
   ADMIN
   MEMBER
+
+  @@schema("chat")
 }
 
 enum MessageKind {
   TEXT
   SYSTEM
+
+  @@schema("chat")
 }
 
 
@@ -47,6 +54,7 @@ model Chat {
   @@index([type])
   @@index([lastMessageAt(sort: Desc)])
   @@index([createdById])
+  @@schema("chat")
 }
 
 model ChatMember {
@@ -66,6 +74,7 @@ model ChatMember {
   @@unique([chatId, userId])
   @@index([chatId, leftAt])
   @@index([ archivedAt])
+  @@schema("chat")
 }
 
 model Message {
@@ -91,4 +100,5 @@ model Message {
   @@index([authorId, createdAt(sort: Desc)])
   @@index([replyToId])
   @@index([chatId, deletedAt, createdAt(sort: Desc)])
+  @@schema("chat")
 }

@@ -18,9 +18,7 @@ export class ListChatsHandler implements IQueryHandler<
     private readonly support: ChatApplicationSupport,
   ) {}
 
-  async execute({
-    dto,
-  }: ListChatsQuery): Promise<{
+  async execute({ dto }: ListChatsQuery): Promise<{
     items: ChatListItemView[];
     nextCursor?: string;
   }> {

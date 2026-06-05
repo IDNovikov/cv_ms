@@ -15,11 +15,8 @@ export class ConsumerService {
     exchange: SendMailContract.queue.exchange.name,
     routingKey: SendMailContract.queue.routingKey,
     queue: SendMailContract.queue.queue,
-    errorBehavior: MessageHandlerErrorBehavior.NACK,
-    errorHandler: (channel, msg, err) => {
-      console.error('RPC error:', err);
-      channel.nack(msg, false, false);
-    },
+    queueOptions: SendMailContract.queue.queueOptions,
+    errorBehavior: MessageHandlerErrorBehavior.REQUEUE,
   })
   private async sendVerifyMail(
     request: SendMailContract.request,
@@ -32,12 +29,8 @@ export class ConsumerService {
           : request;
 
     const payload = trueRequest.payload ?? trueRequest;
-    try {
-      const sendedMail = await this.mailService.sendMail(payload);
-      this.logger.log(sendedMail);
-      if (!sendedMail.messageId) throw new Error('Message not sended');
-    } catch (err) {
-      this.logger.error(err);
-    }
+    const sentMail = await this.mailService.sendMail(payload);
+    this.logger.log(`Mail sent: ${sentMail.messageId}`);
+    if (!sentMail.messageId) throw new Error('Message not sent');
   }
 }

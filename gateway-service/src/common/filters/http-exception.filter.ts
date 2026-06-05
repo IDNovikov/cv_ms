@@ -26,6 +26,7 @@ type ErrorResponseBody = {
 type GrpcErrorPayload = {
   code?: string;
   layer?: string;
+  message?: string;
   retryable?: boolean;
   details?: ErrorDetails;
 };
@@ -133,6 +134,10 @@ export class HttpErrorFilter implements ExceptionFilter {
     if (payload?.details && typeof payload.details === 'object') {
       const details = payload.details as Record<string, unknown>;
       if (typeof details.message === 'string') return details.message;
+    }
+
+    if (typeof payload?.message === 'string') {
+      return payload.message;
     }
 
     if (typeof exception.details === 'string' && !this.looksLikeJson(exception.details)) {

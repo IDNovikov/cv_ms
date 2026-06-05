@@ -17,10 +17,10 @@ import type * as Prisma from "./prismaNamespace.js"
 
 const config: runtime.GetPrismaClientConfig = {
   "previewFeatures": [],
-  "clientVersion": "7.4.0",
-  "engineVersion": "ab56fe763f921d033a6c195e7ddeb3e255bdbb57",
+  "clientVersion": "7.8.0",
+  "engineVersion": "3c6e192761c0362d496ed980de936e2f3cebcd3a",
   "activeProvider": "postgresql",
-  "inlineSchema": "generator client {\n  provider     = \"prisma-client\"\n  output       = \"./generated\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n}\n\nenum ChatType {\n  DIRECT\n  GROUP\n}\n\nenum ChatMemberRole {\n  OWNER\n  ADMIN\n  MEMBER\n}\n\nenum MessageKind {\n  TEXT\n  SYSTEM\n}\n\nmodel Chat {\n  id            String       @id @default(uuid(7)) @db.Uuid\n  requestId     String\n  type          ChatType\n  title         String?\n  avatarUrl     String?\n  /// Только для DIRECT. Нужен, чтобы не плодить дубли личек.\n  /// Формат, например: \"12:48\" где userIds отсортированы по возрастанию\n  directKey     String?      @unique\n  createdById   String\n  lastMessageId String?      @db.Uuid\n  lastMessageAt DateTime?\n  members       ChatMember[]\n  messages      Message[]\n  createdAt     DateTime     @default(now())\n  updatedAt     DateTime     @updatedAt\n  deletedAt     DateTime?\n\n  @@index([type])\n  @@index([lastMessageAt(sort: Desc)])\n  @@index([createdById])\n}\n\nmodel ChatMember {\n  requestId         String\n  id                String         @id @default(uuid(7)) @db.Uuid\n  chatId            String         @db.Uuid\n  userId            String\n  role              ChatMemberRole @default(MEMBER)\n  joinedAt          DateTime       @default(now())\n  leftAt            DateTime?\n  archivedAt        DateTime?\n  mutedUntil        DateTime?\n  lastReadMessageId String?        @db.Uuid\n  lastReadAt        DateTime?\n  chat              Chat           @relation(fields: [chatId], references: [id], onDelete: Cascade)\n\n  @@unique([chatId, userId])\n  @@index([chatId, leftAt])\n  @@index([archivedAt])\n}\n\nmodel Message {\n  requestId String      @unique\n  id        String      @id @default(uuid(7)) @db.Uuid\n  chatId    String      @db.Uuid\n  authorId  String\n  kind      MessageKind @default(TEXT)\n  text      String\n  isEdited  Boolean     @default(false)\n  editedAt  DateTime?\n  deletedAt DateTime?\n  /// reply / thread-lite\n  replyToId String?     @db.Uuid\n  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)\n  /// Self relation для reply\n  replyTo   Message?    @relation(\"MessageReplies\", fields: [replyToId], references: [id], onDelete: SetNull)\n  replies   Message[]   @relation(\"MessageReplies\")\n  createdAt DateTime    @default(now())\n  updatedAt DateTime    @updatedAt\n\n  @@index([chatId, createdAt(sort: Desc)])\n  @@index([authorId, createdAt(sort: Desc)])\n  @@index([replyToId])\n  @@index([chatId, deletedAt, createdAt(sort: Desc)])\n}\n",
+  "inlineSchema": "generator client {\n  provider     = \"prisma-client\"\n  output       = \"./generated\"\n  moduleFormat = \"cjs\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  schemas  = [\"chat\"]\n}\n\nenum ChatType {\n  DIRECT\n  GROUP\n\n  @@schema(\"chat\")\n}\n\nenum ChatMemberRole {\n  OWNER\n  ADMIN\n  MEMBER\n\n  @@schema(\"chat\")\n}\n\nenum MessageKind {\n  TEXT\n  SYSTEM\n\n  @@schema(\"chat\")\n}\n\nmodel Chat {\n  id            String       @id @default(uuid(7)) @db.Uuid\n  requestId     String\n  type          ChatType\n  title         String?\n  avatarUrl     String?\n  /// Только для DIRECT. Нужен, чтобы не плодить дубли личек.\n  /// Формат, например: \"12:48\" где userIds отсортированы по возрастанию\n  directKey     String?      @unique\n  createdById   String\n  lastMessageId String?      @db.Uuid\n  lastMessageAt DateTime?\n  members       ChatMember[]\n  messages      Message[]\n  createdAt     DateTime     @default(now())\n  updatedAt     DateTime     @updatedAt\n  deletedAt     DateTime?\n\n  @@index([type])\n  @@index([lastMessageAt(sort: Desc)])\n  @@index([createdById])\n  @@schema(\"chat\")\n}\n\nmodel ChatMember {\n  requestId         String\n  id                String         @id @default(uuid(7)) @db.Uuid\n  chatId            String         @db.Uuid\n  userId            String\n  role              ChatMemberRole @default(MEMBER)\n  joinedAt          DateTime       @default(now())\n  leftAt            DateTime?\n  archivedAt        DateTime?\n  mutedUntil        DateTime?\n  lastReadMessageId String?        @db.Uuid\n  lastReadAt        DateTime?\n  chat              Chat           @relation(fields: [chatId], references: [id], onDelete: Cascade)\n\n  @@unique([chatId, userId])\n  @@index([chatId, leftAt])\n  @@index([archivedAt])\n  @@schema(\"chat\")\n}\n\nmodel Message {\n  requestId String      @unique\n  id        String      @id @default(uuid(7)) @db.Uuid\n  chatId    String      @db.Uuid\n  authorId  String\n  kind      MessageKind @default(TEXT)\n  text      String\n  isEdited  Boolean     @default(false)\n  editedAt  DateTime?\n  deletedAt DateTime?\n  /// reply / thread-lite\n  replyToId String?     @db.Uuid\n  chat      Chat        @relation(fields: [chatId], references: [id], onDelete: Cascade)\n  /// Self relation для reply\n  replyTo   Message?    @relation(\"MessageReplies\", fields: [replyToId], references: [id], onDelete: SetNull)\n  replies   Message[]   @relation(\"MessageReplies\")\n  createdAt DateTime    @default(now())\n  updatedAt DateTime    @updatedAt\n\n  @@index([chatId, createdAt(sort: Desc)])\n  @@index([authorId, createdAt(sort: Desc)])\n  @@index([replyToId])\n  @@index([chatId, deletedAt, createdAt(sort: Desc)])\n  @@schema(\"chat\")\n}\n",
   "runtimeDataModel": {
     "models": {},
     "enums": {},
@@ -67,7 +67,9 @@ export interface PrismaClientConstructor {
    * Type-safe database client for TypeScript
    * @example
    * ```
-   * const prisma = new PrismaClient()
+   * const prisma = new PrismaClient({
+   *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+   * })
    * // Fetch zero or more Chats
    * const chats = await prisma.chat.findMany()
    * ```
@@ -89,7 +91,9 @@ export interface PrismaClientConstructor {
  * Type-safe database client for TypeScript
  * @example
  * ```
- * const prisma = new PrismaClient()
+ * const prisma = new PrismaClient({
+ *   adapter: new PrismaPg({ connectionString: process.env.DATABASE_URL })
+ * })
  * // Fetch zero or more Chats
  * const chats = await prisma.chat.findMany()
  * ```
@@ -174,9 +178,9 @@ export interface PrismaClient<
    * ])
    * ```
    * 
-   * Read more in our [docs](https://www.prisma.io/docs/concepts/components/prisma-client/transactions).
+   * Read more in our [docs](https://www.prisma.io/docs/orm/prisma-client/queries/transactions).
    */
-  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
+  $transaction<P extends Prisma.PrismaPromise<any>[]>(arg: [...P], options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<runtime.Types.Utils.UnwrapTuple<P>>
 
   $transaction<R>(fn: (prisma: Omit<PrismaClient, runtime.ITXClientDenyList>) => runtime.Types.Utils.JsPromise<R>, options?: { maxWait?: number, timeout?: number, isolationLevel?: Prisma.TransactionIsolationLevel }): runtime.Types.Utils.JsPromise<R>
 

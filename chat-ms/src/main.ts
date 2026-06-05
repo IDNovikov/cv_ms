@@ -41,7 +41,6 @@ async function bootstrap() {
 
   const port = config.getOrThrow<number>('PORT');
   const host = config.getOrThrow<string>('HOST');
-  app.setGlobalPrefix('chats');
 
   try {
     await app.listen(port);

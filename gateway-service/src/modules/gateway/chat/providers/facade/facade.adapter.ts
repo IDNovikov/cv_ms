@@ -42,6 +42,7 @@ export class FacadeAdapter implements OnModuleInit, FacadePort {
   }
 
   public createChat(request: CreateChatRequest): Promise<ChatDetails> {
+    console.log(request);
     return firstValueFrom(this.chatService.createChat(request));
   }
   public getChat(request: GetChatRequest): Promise<ChatDetails> {
@@ -54,6 +55,7 @@ export class FacadeAdapter implements OnModuleInit, FacadePort {
     return firstValueFrom(this.chatService.deleteChat(request));
   }
   public getListChats(request: ListChatsRequest): Promise<ListChatsResponse> {
+    console.log(request);
     return firstValueFrom(this.chatService.getListChats(request));
   }
   public getChatMembers(request: GetChatMembersRequest): Promise<GetChatMembersResponse> {

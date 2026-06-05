@@ -31,10 +31,15 @@ services:
     ports:
       - "5672:5672"
       - "15672:15672"
-
     networks:
       - app_network
-    restart: on-failure
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   mail-microservice:
     build:
@@ -46,7 +51,8 @@ services:
     env_file:
       - ../mail-microservice/.env
     depends_on:
-      - rabbit
+      rabbit:
+        condition: service_healthy
     ports:
       - "5001:5001"
     networks:

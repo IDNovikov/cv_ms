@@ -1,5 +1,4 @@
 import { ArgumentsHost, Catch, ExceptionFilter, Logger } from '@nestjs/common';
-import { RpcException } from '@nestjs/microservices';
 import { Request, Response } from 'express';
 import {
   ApiErrorMapper,
@@ -25,7 +24,7 @@ export class GlobalExceptionFilter implements ExceptionFilter {
     );
 
     if (host.getType() === 'rpc') {
-      throw new RpcException(toGrpcErrorShape(appError));
+      throw toGrpcErrorShape(appError);
     }
 
     const context = host.switchToHttp();

@@ -1,6 +1,5 @@
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { UseGuards } from '@nestjs/common';
-import { randomUUID } from 'crypto';
 import {
   Chat,
   ChatDetails,
@@ -51,14 +50,6 @@ function timestampToDate(value: Timestamp | undefined): Date {
 
 function nullableTimestampToDate(value: Timestamp | undefined): Date | null {
   return value ? timestampToDate(value) : null;
-}
-
-function dateToTimestamp(value: string): Timestamp {
-  const ms = new Date(value).getTime();
-  return {
-    seconds: Math.trunc(ms / 1000),
-    nanos: (ms % 1000) * 1_000_000,
-  };
 }
 
 function mapChatToGql(chat: Chat | undefined): ChatGqlEntity | null {
@@ -204,7 +195,7 @@ export class ChatResolver {
   @Mutation(() => ChatDetailsGqlEntity)
   async createChat(@User() user: AuthUser, @Args('input') input: CreateChatDto) {
     const result = await this.chatFacade.createChat({
-      requestId: randomUUID(),
+      requestId: input.requestId,
       actorUserId: user.sub,
       type: input.type,
       participantUserIds: input.participantUserIds,
@@ -304,7 +295,7 @@ export class ChatResolver {
     await this.chatFacade.muteChat({
       chatId,
       actorUserId: user.sub,
-      mutedUntil: dateToTimestamp(input.mutedUntil),
+      mutedUntil: input.mutedUntil,
     });
     return true;
   }
@@ -325,10 +316,10 @@ export class ChatResolver {
     @Args('input') input: SendMessageDto,
   ) {
     const message = await this.chatFacade.sendMessage({
-      requestId: randomUUID(),
+      requestId: input.requestId,
       chatId,
       authorId: user.sub,
-      kind: input.kind ?? MessageKind.TEXT,
+      kind: input.kind,
       text: input.text,
       replyToId: input.replyToId,
     });

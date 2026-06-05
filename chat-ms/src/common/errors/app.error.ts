@@ -85,6 +85,7 @@ export function toGrpcErrorShape(error: AppError): GrpcErrorShape {
     details: JSON.stringify({
       code: error.code,
       layer: error.layer,
+      message: error.message,
       retryable: error.retryable,
       details: error.details,
     }),
